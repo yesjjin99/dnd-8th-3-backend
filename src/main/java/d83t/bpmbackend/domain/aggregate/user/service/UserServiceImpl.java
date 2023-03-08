@@ -93,10 +93,11 @@ public class UserServiceImpl implements UserService {
                     throw new CustomException(Error.USER_ALREADY_REGISTER_SCHEDULE);
                 }
         );
+        String studioName = studio == null ? scheduleRequest.getStudioName() : studio.getName();
         Schedule schedule = Schedule.builder()
                 .studio(studio)
                 .user(user)
-                .studioName(studio.getName())
+                .studioName(studioName)
                 .date(convertDateFormat(scheduleRequest.getDate()))
                 .time(convertTimeFormat(scheduleRequest.getTime()))
                 .memo(scheduleRequest.getMemo())
@@ -123,6 +124,13 @@ public class UserServiceImpl implements UserService {
                 .studioName(studioName)
                 .memo(schedule.getMemo())
                 .build();
+    }
+
+    @Override
+    public void deleteSchedule(User user) {
+        Schedule schedule = scheduleRepository.findByUserId(user.getId()).orElseThrow(
+                () -> new CustomException(Error.NOT_FOUND_SCHEDULE));
+        scheduleRepository.delete(schedule);
     }
 
     private LocalDate convertDateFormat(String date) {
