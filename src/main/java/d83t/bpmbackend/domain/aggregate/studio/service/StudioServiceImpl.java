@@ -40,6 +40,8 @@ public class StudioServiceImpl implements StudioService {
                 .openHours(requestDto.getOpenHours())
                 .price(requestDto.getPrice())
                 .build();
+
+        studio.addRecommend(requestDto.getRecommends());
         studioRepository.save(studio);
 
         return new StudioResponseDto(studio);
@@ -66,11 +68,13 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public StudioResponseDto searchStudio(String q) {
-        Optional<Studio> studio = studioRepository.findByName(q);
-        if (studio.isEmpty()) {
+    public List<StudioResponseDto> searchStudio(String q) {
+        List<Studio> studios = studioRepository.searchStudioNames(q);
+        if (studios.isEmpty()) {
             throw new CustomException(Error.NOT_FOUND_STUDIO);
         }
-        return new StudioResponseDto(studio.get());
+        return studios.stream().map(studio -> {
+            return new StudioResponseDto(studio);
+        }).collect(Collectors.toList());
     }
 }
