@@ -35,6 +35,10 @@ public class User extends DateEntity implements UserDetails {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Schedule schedule;
 
+    public void updateProfile(Profile profile){
+        this.profile = profile;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
