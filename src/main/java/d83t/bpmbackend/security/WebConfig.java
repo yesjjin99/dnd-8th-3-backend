@@ -16,6 +16,7 @@ public class WebConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -23,7 +24,7 @@ public class WebConfig {
                 .disable()
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/users/signup", "/api/users/verification").permitAll()
                         .anyRequest().authenticated())
                 .requestCache().disable()
                 .securityContext().disable()
@@ -32,7 +33,7 @@ public class WebConfig {
                 .and()
                 .formLogin()
                 .disable()
-                .exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint)
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
