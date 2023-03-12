@@ -2,6 +2,7 @@ package d83t.bpmbackend.domain.aggregate.profile.service;
 
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileDto;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileRequest;
+import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileUpdateRequest;
 import d83t.bpmbackend.exception.CustomException;
 import d83t.bpmbackend.exception.Error;
 import d83t.bpmbackend.s3.S3UploaderService;
@@ -64,4 +65,30 @@ public class ProfileImageServiceImpl implements ProfileImageService {
                 .imagePath(imagePath)
                 .build();
     }
+
+    @Override
+    public ProfileDto updateProfileDto(String fullPath, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+        return updateProfileFile(fullPath, profileUpdateRequest, file);
+    }
+
+    private ProfileDto updateProfileFile(String fullPath, ProfileUpdateRequest profileUpdateRequest, MultipartFile file){
+        //파일 업로드
+        String newName = FileUtils.createNewFileName(file.getOriginalFilename());
+        String imagePath = "";
+        if(env.equals("prod")){
+            imagePath = uploaderService.putS3(file, profilePath, newName);
+            //기존 파일을 삭제함.
+            log.info("path: {}", fullPath);
+            uploaderService.deleteS3Image(fullPath);
+            log.info("profile image delete success");
+        }
+        return ProfileDto.builder()
+                .nickname(profileUpdateRequest.getNickname())
+                .bio(profileUpdateRequest.getBio())
+                .imageName(newName)
+                .imagePath(imagePath)
+                .build();
+    }
+
+
 }

@@ -24,6 +24,7 @@ public class S3UploaderServiceImpl implements S3UploaderService {
     @Value("${bpm.s3.bucket.base}")
     private String basePath;
 
+    @Override
     public String putS3(MultipartFile uploadFile, String path, String fileName) {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(uploadFile.getContentType());
@@ -36,6 +37,11 @@ public class S3UploaderServiceImpl implements S3UploaderService {
             throw new CustomException(Error.S3_UPLOAD_FAIL);
         }
         return basePath + fileName;
+    }
+
+    @Override
+    public void deleteS3Image(String fullPath) {
+        s3Client.deleteObject(bucket,fullPath.substring(basePath.indexOf('/',8) + 1));
     }
 
 
