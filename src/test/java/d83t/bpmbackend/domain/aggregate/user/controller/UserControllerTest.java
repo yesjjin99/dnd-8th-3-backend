@@ -1,6 +1,7 @@
 package d83t.bpmbackend.domain.aggregate.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import d83t.bpmbackend.Utils.DateUtils;
 import d83t.bpmbackend.config.WithAuthUser;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileRequest;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileResponse;
@@ -28,9 +29,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -87,8 +85,8 @@ class UserControllerTest {
 
         scheduleResponse = ScheduleResponse.builder()
                 .studioName(scheduleRequest.getStudioName())
-                .time(convertTimeFormat(scheduleRequest.getTime()))
-                .date(convertDateFormat(scheduleRequest.getDate()))
+                .time(DateUtils.convertTimeFormat(scheduleRequest.getTime()))
+                .date(DateUtils.convertDateFormat(scheduleRequest.getDate()))
                 .memo(scheduleRequest.getMemo())
                 .build();
     }
@@ -175,13 +173,5 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    private LocalDate convertDateFormat(String date) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(date, dateTimeFormatter);
-    }
 
-    private LocalTime convertTimeFormat(String time) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        return LocalTime.parse(time, dateTimeFormatter);
-    }
 }
