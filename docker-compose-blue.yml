@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  web:
+  web-blue:
     container_name: web-blue
     image: teambpm2023/dnd-bpm:main
     expose:
