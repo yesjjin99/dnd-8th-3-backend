@@ -102,8 +102,4 @@ jobs:
           script: |
             cd /home/ubuntu/srv/ubuntu
             sh ./config/scripts/docker-install.sh
-            sudo docker stop $(sudo docker ps -a -q)
-            sudo docker rm $(sudo docker ps -a -q)
-            sudo docker rmi $(sudo docker images -q)
-            sudo docker-compose -f docker-compose.yml pull
-            sudo docker-compose -f docker-compose.yml up --build -d
+            sh ./deploy.sh
