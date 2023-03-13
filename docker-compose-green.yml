@@ -5,16 +5,6 @@ services:
     container_name: web-green
     image: teambpm2023/dnd-bpm:main
     expose:
-      - "8080"
+      - "8082"
     ports:
-      - "8080:8080"
-
-  nginx:
-    depends_on:
-      - web-green
-    restart: always
-    build:
-      dockerfile: Dockerfile-green
-      context: ./config/nginx
-    ports:
-      - "80:80"
+      - "8082:8080"
