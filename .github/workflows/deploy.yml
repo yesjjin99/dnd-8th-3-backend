@@ -102,4 +102,5 @@ jobs:
           script: |
             cd /home/ubuntu/srv/ubuntu
             sh ./config/scripts/docker-install.sh
-            sh ./deploy.sh
+            sh sudo chmod +x ./deploy.sh
+            sh sudo ./deploy.sh
