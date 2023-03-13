@@ -6,12 +6,12 @@ EXIST_BLUE=$(docker-compose -p web-blue -f docker-compose-blue.yml ps | grep Up)
 # 컨테이너 스위칭
 if [ -z "$EXIST_BLUE" ]; then
     echo "blue up"
-    docker-compose -p web-blue -f docker-compose-blue.yml up -d
+    sudo docker-compose -p web-blue -f docker-compose-blue.yml up -d
     BEFORE_COMPOSE_COLOR="green"
     AFTER_COMPOSE_COLOR="blue"
 else
     echo "green up"
-    docker-compose -p web-green -f docker-compose-green.yml up -d
+    sudo docker-compose -p web-green -f docker-compose-green.yml up -d
     BEFORE_COMPOSE_COLOR="blue"
     AFTER_COMPOSE_COLOR="green"
 fi
@@ -25,6 +25,6 @@ if [ -n "$EXIST_AFTER" ]; then
     #cp /etc/nginx/nginx.${AFTER_COMPOSE_COLOR}.conf /etc/nginx/nginx.conf
     nginx -s reload
     # 이전 컨테이너 종료
-    docker-compose -p web-${BEFORE_COMPOSE_COLOR} -f docker-compose-${BEFORE_COMPOSE_COLOR}.yml down
+    sudo docker-compose -p web-${BEFORE_COMPOSE_COLOR} -f docker-compose-${BEFORE_COMPOSE_COLOR}.yml down
     echo "$BEFORE_COMPOSE_COLOR down"
 fi
