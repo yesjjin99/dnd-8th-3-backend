@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Blue 를 기준으로 현재 떠있는 컨테이너를 체크한다.
-EXIST_BLUE=$(docker-compose -p web-blue -f docker-compose-blue.yml ps | grep Up)
+EXIST_BLUE=$(sudo docker-compose -p web-blue -f docker-compose-blue.yml ps | grep Up)
 
 # 컨테이너 스위칭
 if [ -z "$EXIST_BLUE" ]; then
@@ -19,10 +19,10 @@ fi
 sleep 10
 
 # 새로운 컨테이너가 제대로 떴는지 확인
-EXIST_AFTER=$(docker-compose -p web-${AFTER_COMPOSE_COLOR} -f docker-compose-${AFTER_COMPOSE_COLOR}.yml ps | grep Up)
+EXIST_AFTER=$(sudo docker-compose -p web-${AFTER_COMPOSE_COLOR} -f docker-compose-${AFTER_COMPOSE_COLOR}.yml ps | grep Up)
 if [ -n "$EXIST_AFTER" ]; then
     # nginx.config를 컨테이너에 맞게 변경해주고 reload 한다 -> 필요없을듯?
-    #cp /etc/nginx/nginx.${AFTER_COMPOSE_COLOR}.conf /etc/nginx/nginx.conf
+    # cp /etc/nginx/nginx.${AFTER_COMPOSE_COLOR}.conf /etc/nginx/nginx.conf
     nginx -s reload
     # 이전 컨테이너 종료
     sudo docker-compose -p web-${BEFORE_COMPOSE_COLOR} -f docker-compose-${BEFORE_COMPOSE_COLOR}.yml down
