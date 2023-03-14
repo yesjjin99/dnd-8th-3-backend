@@ -11,7 +11,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI openAPI(){
         return new OpenAPI().info(new Info()
-                .version("v1.0.0")
+                .version("v1.0.1")
                 .title("BPM")
                 .description("Body Profile Manager")
                 .summary("dnd8기-3조 BPM 프로젝트 입니다."));
