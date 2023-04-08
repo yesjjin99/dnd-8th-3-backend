@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // TODO: 요건 확실히, 스튜디오 없어도 등록되는데, 조회시에는 그 정보를 보여줘야하나?라는 요건
+    // TODO: 요건 확실히 정해야함. 스튜디오 없어도 등록되는데, 조회시에는 그 정보를 보여줘야하나?라는 요건
     @Override
     public ScheduleResponse registerSchedule(User user, ScheduleRequest scheduleRequest) {
         Studio studio = studioRepository.findByName(scheduleRequest.getStudioName())
@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService {
                 }
         );
         String studioName = studio == null ? scheduleRequest.getStudioName() : studio.getName();
+
         Schedule schedule = Schedule.builder()
                 .studio(studio)
                 .user(user)
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
         scheduleRepository.save(schedule);
 
         return ScheduleResponse.builder()
-                .studioName(scheduleRequest.getStudioName())
+                .studioName(schedule.getStudioName())
                 .time(schedule.getTime())
                 .date(schedule.getDate())
                 .memo(schedule.getMemo())
