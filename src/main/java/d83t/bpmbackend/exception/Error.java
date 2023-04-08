@@ -22,7 +22,8 @@ public enum Error {
     NOT_FOUND_SCHEDULE("schedule not found",HttpStatus.NO_CONTENT),
     STUDIO_ALREADY_EXISTS("studio already exists", HttpStatus.CONFLICT),
     NOT_FOUND_REVIEW("review not found", HttpStatus.NOT_FOUND),
-    NOT_FOUND_LIKE("like not found", HttpStatus.NOT_FOUND);
+    NOT_FOUND_LIKE("like not found", HttpStatus.NOT_FOUND),
+    NOT_FOUND_QUESTION_ARTICLE("question article not found", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus status;
