@@ -147,11 +147,9 @@ public class BodyShapeServiceImpl implements BodyShapeService {
     //TODO: 향후 public, private 구분이 되는 기능이 추가될 시 Response를 바꿔야함.
     @Override
     public BodyShapeResponse getBodyShape(User user, Long bodyShapeId) {
-        Optional<BodyShape> findBodyShape = bodyShapeRepository.findById(bodyShapeId);
-        if(findBodyShape.isEmpty()){
+        BodyShape bodyShape = bodyShapeRepository.findById(bodyShapeId).orElseThrow(()->{
             throw new CustomException(Error.NOT_FOUND_BODY_SHAPE);
-        }
-        BodyShape bodyShape = findBodyShape.get();
+        });
         List<String> filePaths = new ArrayList<>();
         Profile author = bodyShape.getAuthor();
         List<BodyShapeImage> images = bodyShape.getImages();
