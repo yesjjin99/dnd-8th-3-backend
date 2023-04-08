@@ -39,7 +39,7 @@ public class BodyShapeController {
     }
 
     @Operation(summary = "내 눈바디 남기기 리스트 조회 API", description = "사용자가 내 눈바디를 조회합니다. token을 넘겨야합니다.")
-    @ApiResponse(responseCode = "200", description = "내 눈바디 등록 성공", content = @Content(schema = @Schema(implementation = BodyShapeResponse.MultiBodyShapes.class)))
+    @ApiResponse(responseCode = "200", description = "내 눈바디 리스트 조회 성공", content = @Content(schema = @Schema(implementation = BodyShapeResponse.MultiBodyShapes.class)))
     @GetMapping
     public BodyShapeResponse.MultiBodyShapes getBodyShapes(
             @AuthenticationPrincipal User user,
