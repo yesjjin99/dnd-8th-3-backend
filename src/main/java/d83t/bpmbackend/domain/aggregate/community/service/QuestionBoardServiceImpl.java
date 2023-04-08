@@ -19,13 +19,18 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
 
     private final UserRepository userRepository;
     private final S3UploaderService uploaderService;
+    private final ProfileRepository profileRepository;
     private final QuestionBoardRepository questionBoardRepository;
 
     @Value("${bpm.s3.bucket.question.board.path}")
@@ -111,5 +117,38 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .title(questionBoard.getTitle())
                 .content(questionBoard.getContent())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<QuestionBoardResponse> getQuestionBoardArticles(User user, Integer limit, Integer offset) {
+        List<QuestionBoard> questionBoards = new ArrayList<>();
+
+        limit = limit == null ? 20 : limit;
+        offset = offset == null ? 0 : offset;
+        Pageable pageable = PageRequest.of(offset, limit);
+        Long profileId = user.getProfile().getId();
+        Optional<Profile> findProfile = profileRepository.findById(profileId);
+        Profile profile = findProfile.get();
+
+        questionBoards = questionBoardRepository.findByNickName(pageable, profile.getNickName());
+
+        return questionBoards.stream().map(questionBoard -> {
+            return QuestionBoardResponse.builder()
+                    .id(questionBoard.getId())
+                    .title(questionBoard.getTitle())
+                    .content(questionBoard.getContent())
+                    .createdAt(questionBoard.getCreatedDate())
+                    .updatedAt(questionBoard.getModifiedDate())
+                    .filesPath(questionBoard.getImage().stream().map(images -> {
+                        return images.getStoragePathName();
+                    }).collect(Collectors.toList()))
+                    .author(QuestionBoardResponse.Author.builder()
+                            .nickname(questionBoard.getAuthor().getNickName())
+                            .profilePath(questionBoard.getAuthor().getStoragePathName())
+                            .build())
+                    .build();
+        }).collect(Collectors.toList());
+
     }
 }

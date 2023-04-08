@@ -40,4 +40,15 @@ public class QuestionBoardController {
         return QuestionBoardResponse.SingleQuestionBoard.builder().questionBoardResponse(questionBoardService.createQuestionBoardArticle(user, files, questionBoardRequest)).build();
     }
 
+    @Operation(summary = "질문하기 게시판 리스트 조회 API", description = "사용자가 질문하기 게시판 리스트 조회합니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 리스트 조회 성공", content = @Content(schema = @Schema(implementation = QuestionBoardResponse.MultiQuestionBoard.class)))
+    @GetMapping
+    public QuestionBoardResponse.MultiQuestionBoard getQuestionBoardArticles(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "offset", required = false) Integer offset) {
+        List<QuestionBoardResponse> questionArticles = questionBoardService.getQuestionBoardArticles(user, limit, offset);
+        return QuestionBoardResponse.MultiQuestionBoard.builder().questionBoardResponseList(questionArticles).questionBoardCount(questionArticles.size()).build();
+    }
+
 }
