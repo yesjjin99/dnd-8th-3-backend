@@ -44,6 +44,9 @@ public class BodyShapeServiceImpl implements BodyShapeService {
     @Value("${bpm.s3.bucket.bodyshape.path}")
     private String bodyShapePath;
 
+    @Value("${bpm.s3.bucket.base}")
+    private String basePath;
+
     @Value("${spring.environment}")
     private String env;
 
@@ -54,7 +57,7 @@ public class BodyShapeServiceImpl implements BodyShapeService {
         if (env.equals("local")) {
             this.fileDir = FileUtils.getUploadPath();
         } else if (env.equals("prod")) {
-            this.fileDir = this.bodyShapePath;
+            this.fileDir = this.basePath + this.bodyShapePath;
         }
     }
 
@@ -65,13 +68,10 @@ public class BodyShapeServiceImpl implements BodyShapeService {
             throw new CustomException(Error.FILE_SIZE_MAX);
         }
 
-        Optional<User> findUser = userRepository.findByKakaoId(user.getKakaoId());
-        if (findUser.isEmpty()) {
-            throw new CustomException(Error.NOT_FOUND_USER_ID);
-        }
+        User findUser = userRepository.findByKakaoId(user.getKakaoId()).orElseThrow(() -> {throw new CustomException(Error.NOT_FOUND_USER_ID);});
         List<String> filePaths = new ArrayList<>();
 
-        Profile profile = findUser.get().getProfile();
+        Profile profile = findUser.getProfile();
         BodyShape bodyshape = BodyShape.builder()
                 .author(profile)
                 .content(bodyShapeRequest.getContent())
