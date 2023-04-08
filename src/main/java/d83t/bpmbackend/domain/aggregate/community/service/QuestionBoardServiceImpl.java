@@ -1,9 +1,8 @@
 package d83t.bpmbackend.domain.aggregate.community.service;
 
+import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeResponse;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardRequest;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardResponse;
-import d83t.bpmbackend.domain.aggregate.community.entity.BodyShape;
-import d83t.bpmbackend.domain.aggregate.community.entity.BodyShapeImage;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardImage;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardRepository;
@@ -150,5 +149,32 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                     .build();
         }).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public QuestionBoardResponse getQuestionBoardArticle(User user, Long questionBoardArticleId) {
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
+        });
+
+        List<String> filePaths = new ArrayList<>();
+        Profile author = questionBoard.getAuthor();
+        List<QuestionBoardImage> images = questionBoard.getImage();
+        for (
+                QuestionBoardImage image : images) {
+            filePaths.add(image.getStoragePathName());
+        }
+        return QuestionBoardResponse.builder()
+                .id(questionBoard.getId())
+                .createdAt(questionBoard.getCreatedDate())
+                .author(QuestionBoardResponse.Author.builder()
+                        .nickname(author.getNickName())
+                        .profilePath(author.getStoragePathName())
+                        .build())
+                .updatedAt(questionBoard.getModifiedDate())
+                .filesPath(filePaths)
+                .title(questionBoard.getTitle())
+                .content(questionBoard.getContent())
+                .build();
     }
 }
