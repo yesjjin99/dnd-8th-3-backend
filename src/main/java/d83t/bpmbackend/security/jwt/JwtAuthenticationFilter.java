@@ -30,11 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Optional<String> token = getToken(request.getHeader(HEADER));
         if(token.isPresent() && jwtService.validateToken(token.get())){
             String jwt = token.get();
-            log.info("token : " + token.get());
+            log.info("token : {}", token.get());
             Authentication auth = jwtService.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
-
         filterChain.doFilter(request,response);
     }
 

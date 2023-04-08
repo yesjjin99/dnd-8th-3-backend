@@ -3,8 +3,6 @@ package d83t.bpmbackend.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import d83t.bpmbackend.exception.CustomException;
 import d83t.bpmbackend.exception.Error;
 import d83t.bpmbackend.exception.ErrorResponse;
 import jakarta.servlet.ServletException;
@@ -20,8 +18,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 @Slf4j
@@ -37,6 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        log.error(request.getHeader("Authorization"));
         log.error("UnAuthentication!!! message : " + authException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
