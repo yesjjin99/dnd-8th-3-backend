@@ -50,7 +50,7 @@ public class BodyShapeController {
     }
 
     @Operation(summary = "내 눈바디 남기기 상세 조회 API", description = "사용자가 내 눈바디를 상세 조회합니다. token을 넘겨야합니다.")
-    @ApiResponse(responseCode = "200", description = "내 눈바디 등록 성공", content = @Content(schema = @Schema(implementation = BodyShapeResponse.SingleBodyShape.class)))
+    @ApiResponse(responseCode = "200", description = "내 눈바디 상세조회 성공", content = @Content(schema = @Schema(implementation = BodyShapeResponse.SingleBodyShape.class)))
     @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @GetMapping("/{bodyShapeId}")
     public BodyShapeResponse.SingleBodyShape getBodyShape(
