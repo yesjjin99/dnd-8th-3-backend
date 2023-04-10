@@ -27,6 +27,9 @@ public class ProfileImageServiceImpl implements ProfileImageService {
     @Value("${bpm.s3.bucket.profile.path}")
     private String profilePath;
 
+    @Value("${bpm.s3.bucket.base}")
+    private String basePath;
+
     @Value("${spring.environment}")
     private String env;
 
@@ -34,7 +37,11 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
     @PostConstruct
     private void init() {
-        this.fileDir = env.equals("local") ? FileUtils.getUploadPath() : this.profilePath;
+        if (env.equals("local")) {
+            this.fileDir = FileUtils.getUploadPath();
+        } else if (env.equals("prod")) {
+            this.fileDir = this.basePath + this.profilePath;
+        }
     }
 
     @Override
