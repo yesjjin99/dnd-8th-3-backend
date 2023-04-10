@@ -61,4 +61,17 @@ public class QuestionBoardController {
         return QuestionBoardResponse.SingleQuestionBoard.builder().questionBoardResponse(questionBoardService.getQuestionBoardArticle(user, questionBoardArticleId)).build();
     }
 
+    @Operation(summary = "질문하기 게시판 게시글 수정 API", description = "사용자가 질문하기 게시판 중 하나의 게시글을 클릭해서  수정합니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 상세조회 성공", content = @Content(schema = @Schema(implementation = QuestionBoardResponse.SingleQuestionBoard.class)))
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @GetMapping("/{questionBoardArticleId}")
+    public QuestionBoardResponse.SingleQuestionBoard updateQuestionBoardArticle(
+            @AuthenticationPrincipal User user,
+            @RequestPart List<MultipartFile> files,
+            @ModelAttribute QuestionBoardRequest questionBoardRequest,
+            @PathVariable Long questionBoardArticleId) {
+        log.info("data input: {}", questionBoardRequest.toString());
+        return QuestionBoardResponse.SingleQuestionBoard.builder().questionBoardResponse(questionBoardService.updateQuestionBoardArticle(user, files, questionBoardRequest, questionBoardArticleId)).build();
+    }
+
 }
