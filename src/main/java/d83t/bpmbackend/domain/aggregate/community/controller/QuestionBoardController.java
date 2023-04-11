@@ -35,7 +35,7 @@ public class QuestionBoardController {
     @PostMapping
     public QuestionBoardResponse.SingleQuestionBoard createQuestionBoard(
             @AuthenticationPrincipal User user,
-            @RequestPart List<MultipartFile> files,
+            @Nullable @RequestPart List<MultipartFile> files,
             @ModelAttribute QuestionBoardRequest questionBoardRequest) {
         log.info("Data input : {}", questionBoardRequest.toString());
         return QuestionBoardResponse.SingleQuestionBoard.builder().questionBoardResponse(questionBoardService.createQuestionBoardArticle(user, files, questionBoardRequest)).build();
