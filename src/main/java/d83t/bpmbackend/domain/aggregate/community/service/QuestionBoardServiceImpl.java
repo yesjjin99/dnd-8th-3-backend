@@ -177,4 +177,26 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .content(questionBoard.getContent())
                 .build();
     }
+
+    @Override
+    public void deleteQuestionBoardArticle(User user, Long questionBoardArticleId) {
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
+        });
+
+        //작성자가 맞는지
+        User findUser = userRepository.findByKakaoId(user.getKakaoId()).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        Long userId = findUser.getId();
+        log.info("db userId : {}", userId);
+        log.info("author : {}", questionBoard.getAuthor().getId());
+        if(questionBoard.getAuthor().getId().equals(userId)){
+            questionBoardRepository.delete(questionBoard);
+        }else{
+            throw new CustomException(Error.NOT_MATCH_USER);
+        }
+
+    }
 }

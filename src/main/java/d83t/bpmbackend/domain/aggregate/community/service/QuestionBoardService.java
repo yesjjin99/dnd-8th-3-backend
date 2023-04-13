@@ -13,4 +13,6 @@ public interface QuestionBoardService {
     List<QuestionBoardResponse> getQuestionBoardArticles(User user, Integer limit, Integer offset);
 
     QuestionBoardResponse getQuestionBoardArticle(User user, Long questionBoardArticleId);
+
+    void deleteQuestionBoardArticle(User user, Long questionBoardArticleId);
 }
