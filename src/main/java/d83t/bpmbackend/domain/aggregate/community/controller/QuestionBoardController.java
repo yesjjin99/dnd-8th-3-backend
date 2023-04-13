@@ -61,4 +61,15 @@ public class QuestionBoardController {
         return QuestionBoardResponse.SingleQuestionBoard.builder().questionBoardResponse(questionBoardService.getQuestionBoardArticle(user, questionBoardArticleId)).build();
     }
 
+    @Operation(summary = "질문하기 게시판 게시글 삭제 API", description = "사용자가 질문하기 게시판 중 하나의 게시글을 클릭해서 삭제합니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 삭제 성공")
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @DeleteMapping("/{questionBoardArticleId}")
+    public void deleteQuestionBoardArticle(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long questionBoardArticleId) {
+        log.info("question board delete input : {}", questionBoardArticleId);
+        questionBoardService.deleteQuestionBoardArticle(user, questionBoardArticleId);
+    }
+
 }

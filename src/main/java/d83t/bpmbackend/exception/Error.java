@@ -23,7 +23,8 @@ public enum Error {
     STUDIO_ALREADY_EXISTS("studio already exists", HttpStatus.CONFLICT),
     NOT_FOUND_REVIEW("review not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_LIKE("like not found", HttpStatus.NOT_FOUND),
-    NOT_FOUND_QUESTION_ARTICLE("question article not found", HttpStatus.NOT_FOUND);
+    NOT_FOUND_QUESTION_ARTICLE("question article not found", HttpStatus.NOT_FOUND),
+    NOT_MATCH_USER("the author and the logged-in user are different", HttpStatus.CONFLICT);
 
     private final String message;
     private final HttpStatus status;
