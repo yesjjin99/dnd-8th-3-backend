@@ -42,4 +42,18 @@ public class QuestionBoard extends DateEntity {
         }
         this.image.add(questionBoardImage);
     }
+
+    public void changeTitle(String title){
+        this.title = title;
+    }
+
+    public void changeContent(String content){
+        this.content = content;
+    }
+
+    public void changeImage(List<QuestionBoardImage> questionBoardImage){
+        this.image.clear();
+        this.image.addAll(questionBoardImage);
+    }
+
 }

@@ -64,7 +64,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
     @Override
     public QuestionBoardResponse createQuestionBoardArticle(User user, List<MultipartFile> files, QuestionBoardRequest questionBoardRequest) {
         //file은 최대 5개만 들어올 수 있다.
-        if (files.size() > 5) {
+        if (files != null && files.size() > 5) {
             throw new CustomException(Error.FILE_SIZE_MAX);
         }
         User findUser = userRepository.findByKakaoId(user.getKakaoId()).orElseThrow(() -> {
@@ -79,25 +79,26 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .build();
 
         List<String> filePaths = new ArrayList<>();
-
-        for (MultipartFile file : files) {
-            String newName = FileUtils.createNewFileName(file.getOriginalFilename());
-            String filePath = fileDir + newName;
-            questionBoard.addQuestionBoardImage(QuestionBoardImage.builder()
-                    .originFileName(newName)
-                    .storagePathName(filePath)
-                    .questionBoard(questionBoard)
-                    .build());
-            filePaths.add(filePath);
-            if (env.equals("prod")) {
-                uploaderService.putS3(file, questionBoardPath, newName);
-            } else if (env.equals("local")) {
-                try {
-                    File localFile = new File(filePath);
-                    file.transferTo(localFile);
-                    FileUtils.removeNewFile(localFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if(files != null && files.size() != 0) {
+            for (MultipartFile file : files) {
+                String newName = FileUtils.createNewFileName(file.getOriginalFilename());
+                String filePath = fileDir + newName;
+                questionBoard.addQuestionBoardImage(QuestionBoardImage.builder()
+                        .originFileName(newName)
+                        .storagePathName(filePath)
+                        .questionBoard(questionBoard)
+                        .build());
+                filePaths.add(filePath);
+                if (env.equals("prod")) {
+                    uploaderService.putS3(file, questionBoardPath, newName);
+                } else if (env.equals("local")) {
+                    try {
+                        File localFile = new File(filePath);
+                        file.transferTo(localFile);
+                        FileUtils.removeNewFile(localFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -179,6 +180,75 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
     }
 
     @Override
+    public QuestionBoardResponse updateQuestionBoardArticle(User user, List<MultipartFile> files, QuestionBoardRequest questionBoardRequest, Long questionBoardArticleId) {
+        if (files != null && files.size() > 5) {
+            throw new CustomException(Error.FILE_SIZE_MAX);
+        }
+        User findUser = userRepository.findByKakaoId(user.getKakaoId()).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() ->{
+            throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
+        });
+
+        if(questionBoardRequest.getTitle() != null){
+                questionBoard.changeTitle(questionBoardRequest.getTitle());
+        }
+        if(questionBoardRequest.getContent() != null){
+            questionBoard.changeContent(questionBoardRequest.getContent());
+        }
+        List<QuestionBoardImage> boardImages = questionBoard.getImage();
+        List<String> filePaths = boardImages.stream()
+                .map(QuestionBoardImage::getStoragePathName)
+                .collect(Collectors.toList());
+
+        //파일 수정
+        if(files != null && files.size() != 0){
+            filePaths = new ArrayList<String>();
+            List<QuestionBoardImage> questionBoardImages= new ArrayList<>();
+            for (MultipartFile file : files) {
+                String newName = FileUtils.createNewFileName(file.getOriginalFilename());
+                String filePath = fileDir + newName;
+
+                questionBoardImages.add(QuestionBoardImage.builder()
+                        .originFileName(newName)
+                        .storagePathName(filePath)
+                        .questionBoard(questionBoard)
+                        .build());
+                filePaths.add(filePath);
+                if (env.equals("prod")) {
+                    uploaderService.putS3(file, questionBoardPath, newName);
+                } else if (env.equals("local")) {
+                    try {
+                        File localFile = new File(filePath);
+                        file.transferTo(localFile);
+                        FileUtils.removeNewFile(localFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            questionBoard.changeImage(questionBoardImages);
+        }
+        questionBoardRepository.save(questionBoard);
+
+        Profile profile = findUser.getProfile();
+
+        return QuestionBoardResponse.builder()
+                .id(questionBoard.getId())
+                .createdAt(questionBoard.getCreatedDate())
+                .author(QuestionBoardResponse.Author.builder()
+                        .nickname(profile.getNickName())
+                        .profilePath(profile.getStoragePathName())
+                        .build())
+                .updatedAt(questionBoard.getModifiedDate())
+                .filesPath(filePaths)
+                .title(questionBoard.getTitle())
+                .content(questionBoard.getContent())
+                .build();
+         }
+         
     public void deleteQuestionBoardArticle(User user, Long questionBoardArticleId) {
         QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
@@ -197,6 +267,5 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
         }else{
             throw new CustomException(Error.NOT_MATCH_USER);
         }
-
     }
 }
