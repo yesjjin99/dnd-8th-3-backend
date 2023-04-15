@@ -124,7 +124,7 @@ public class Studio extends DateEntity {
         for (Map.Entry<String, Integer> recommend : sortedRecommends) {
             topRecommends.put(recommend.getKey(), recommend.getValue());
             i++;
-            if (i == 3) {
+            if (i == 10) {
                 break;
             }
         }
