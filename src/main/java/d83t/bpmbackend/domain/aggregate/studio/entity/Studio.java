@@ -91,10 +91,20 @@ public class Studio extends DateEntity {
 
     public void addRecommend(List<String> recommends) {
         for (String recommend : recommends) {
+            this.recommends.putIfAbsent(recommend, 0);
+            this.recommends.put(recommend, this.recommends.get(recommend) + 1);
+        }
+    }
+
+    public void removeRecommend(List<String> recommends) {
+        for (String recommend : recommends) {
             if (this.recommends.containsKey(recommend)) {
-                this.recommends.put(recommend, this.recommends.get(recommend) + 1);
-            } else {
-                this.recommends.put(recommend, 1);
+                int count = this.recommends.get(recommend);
+                if (count > 1) {
+                    this.recommends.put(recommend, count - 1);
+                } else {
+                    this.recommends.remove(recommend);
+                }
             }
         }
     }
