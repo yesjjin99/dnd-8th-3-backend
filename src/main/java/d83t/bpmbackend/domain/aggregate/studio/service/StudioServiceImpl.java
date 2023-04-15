@@ -31,9 +31,7 @@ public class StudioServiceImpl implements StudioService {
 
         Studio savedStudio = studioRepository.save(studio);
 
-        return StudioResponseDto.builder()
-                .studio(savedStudio)
-                .build();
+        return new StudioResponseDto(savedStudio);
     }
 
     @Override

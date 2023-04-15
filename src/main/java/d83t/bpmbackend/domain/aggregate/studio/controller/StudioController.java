@@ -37,7 +37,9 @@ public class StudioController {
     @ApiResponse(responseCode = "404", description = "스튜디오를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "409", description = "이미 등록된 스튜디오입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @PostMapping
-    public StudioResponseDto createStudio(@ModelAttribute @Valid StudioRequestDto requestDto) {
+    public StudioResponseDto createStudio(
+            @ModelAttribute @Valid StudioRequestDto requestDto,
+            @AuthenticationPrincipal User user) {
         log.info("studio name : " + requestDto.getName());
         return studioService.createStudio(requestDto);
     }
@@ -46,7 +48,9 @@ public class StudioController {
     @ApiResponse(responseCode = "200", description = "스튜디오 조회 성공", content = @Content(schema = @Schema(implementation = StudioResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "스튜디오를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @GetMapping("/{studioId}")
-    public StudioResponseDto findStudioById(@PathVariable Long studioId) {
+    public StudioResponseDto findStudioById(
+            @PathVariable Long studioId,
+            @AuthenticationPrincipal User user) {
         log.info("studio id : " + studioId);
         return studioService.findById(studioId);
     }
@@ -68,7 +72,9 @@ public class StudioController {
     @ApiResponse(responseCode = "200", description = "스튜디오 이름 조회 성공", content = @Content(schema = @Schema(implementation = StudioResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "스튜디오를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @GetMapping()
-    public StudioResponseDto.MultiStudios searchStudio(@RequestParam String q) {
+    public StudioResponseDto.MultiStudios searchStudio(
+            @RequestParam String q,
+            @AuthenticationPrincipal User user) {
         log.info("query param:" + q);
         List<StudioResponseDto> findStudios = studioService.searchStudio(q);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
