@@ -33,7 +33,7 @@ public class BodyShapeController {
     @PostMapping
     public BodyShapeResponse.SingleBodyShape createBoastArticle(
             @AuthenticationPrincipal User user,
-            @Nullable @RequestPart List<MultipartFile> files,
+            @RequestPart List<MultipartFile> files,
             @ModelAttribute BodyShapeRequest bodyShapeRequest) {
         return BodyShapeResponse.SingleBodyShape.builder().bodyShapeArticle(bodyShapeService.createBoastArticle(user, files, bodyShapeRequest)).build();
     }
@@ -65,7 +65,7 @@ public class BodyShapeController {
     @PutMapping("/{bodyShapeId}")
     public BodyShapeResponse.SingleBodyShape updateBodyShape(
             @AuthenticationPrincipal User user,
-            @Nullable @RequestPart List<MultipartFile> files,
+            @RequestPart List<MultipartFile> files,
             @Nullable @ModelAttribute BodyShapeRequest bodyShapeRequest,
             @PathVariable Long bodyShapeId) {
         log.info("data input: {}", bodyShapeRequest.toString());
