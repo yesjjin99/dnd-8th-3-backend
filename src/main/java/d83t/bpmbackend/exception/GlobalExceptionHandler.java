@@ -1,10 +1,14 @@
 package d83t.bpmbackend.exception;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
@@ -12,5 +16,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(e.getError().getStatus().value())
                 .body(new ErrorResponse(e.getError()));
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    protected ResponseEntity<ErrorResponse> handleParamCustomException(final Exception e){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(Error.INVALID_REQUEST));
     }
 }
