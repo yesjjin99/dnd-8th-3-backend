@@ -26,25 +26,12 @@ public class StudioServiceImpl implements StudioService {
     @Override
     @Transactional
     public StudioResponseDto createStudio(StudioRequestDto requestDto) {
-        String[] address = requestDto.getAddress().split(" ");
-
-        Studio studio = Studio.builder()
-                .name(requestDto.getName())
-                .address(requestDto.getAddress())
-                .latitude(requestDto.getLatitude())
-                .longitude(requestDto.getLongitude())
-                .firstTag(address[0])
-                .secondTag(address[1])
-                .phone(requestDto.getPhone())
-                .sns(requestDto.getSns())
-                .openHours(requestDto.getOpenHours())
-                .price(requestDto.getPrice())
-                .build();
-
+        Studio studio = requestDto.toEntity();
         studio.addRecommend(requestDto.getRecommends());
-        studioRepository.save(studio);
 
-        return new StudioResponseDto(studio);
+        Studio savedStudio = studioRepository.save(studio);
+
+        return new StudioResponseDto(savedStudio);
     }
 
     @Override

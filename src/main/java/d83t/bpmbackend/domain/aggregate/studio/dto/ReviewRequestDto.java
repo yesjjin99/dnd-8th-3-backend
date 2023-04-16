@@ -1,5 +1,8 @@
 package d83t.bpmbackend.domain.aggregate.studio.dto;
 
+import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
+import d83t.bpmbackend.domain.aggregate.studio.entity.Review;
+import d83t.bpmbackend.domain.aggregate.studio.entity.Studio;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -14,10 +17,13 @@ public class ReviewRequestDto {
     private List<String> recommends;
     private String content;
 
-    @Builder
-    public ReviewRequestDto(double rating, List<String> recommends, String content) {
-        this.rating = rating;
-        this.recommends = recommends;
-        this.content = content;
+    public Review toEntity(Studio studio, Profile profile) {
+        return Review.builder()
+                .studio(studio)
+                .author(profile)
+                .rating(rating)
+                .recommends(recommends)
+                .content(content)
+                .build();
     }
 }

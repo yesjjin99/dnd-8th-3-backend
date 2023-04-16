@@ -70,13 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STUDIO));
         Profile profile = findUser.getProfile();
 
-        Review review = Review.builder()
-                .studio(studio)
-                .author(profile)
-                .rating(requestDto.getRating())
-                .recommends(requestDto.getRecommends())
-                .content(requestDto.getContent())
-                .build();
+        Review review = requestDto.toEntity(studio, profile);
 
         for (MultipartFile file : files) {
             String newName = FileUtils.createNewFileName(file.getOriginalFilename());
@@ -100,12 +94,12 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
-        review = studio.addReview(review);
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        studio.addReview(savedReview);
         studio.addRecommend(requestDto.getRecommends());
         studioRepository.save(studio);
 
-        return new ReviewResponseDto(review, false);
+        return new ReviewResponseDto(savedReview, false);
     }
 
     @Override
