@@ -1,6 +1,7 @@
 package d83t.bpmbackend.domain.aggregate.profile.entity;
 
 import d83t.bpmbackend.domain.aggregate.community.entity.BodyShape;
+import d83t.bpmbackend.domain.aggregate.community.entity.Story;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Like;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Review;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
@@ -49,4 +50,6 @@ public class Profile {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes;
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Story> stories;
 }
