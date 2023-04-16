@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum Error {
 
+    INVALID_REQUEST("Invalid request value. Please check your request body.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_USER("Unauthorized user. Please check your token.", HttpStatus.UNAUTHORIZED),
     FILE_TRANSFER_FAIL("Failed to transfer file", HttpStatus.INTERNAL_SERVER_ERROR),
     NOT_FOUND_USER_ID("kakao user not found", HttpStatus.NOT_FOUND),
