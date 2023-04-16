@@ -16,5 +16,8 @@ public interface BodyShapeService {
 
     BodyShapeResponse getBodyShape(User user, Long bodyShapeId);
 
+    BodyShapeResponse updateBodyShape(User user, List<MultipartFile> files, BodyShapeRequest bodyShapeRequest, Long bodyShapeId);
+
     void deleteBodyShape(User user, Long bodyShapeId);
+
 }

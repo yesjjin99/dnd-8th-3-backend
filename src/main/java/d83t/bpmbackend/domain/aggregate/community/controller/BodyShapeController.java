@@ -3,13 +3,13 @@ package d83t.bpmbackend.domain.aggregate.community.controller;
 import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeRequest;
 import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeResponse;
 import d83t.bpmbackend.domain.aggregate.community.service.BodyShapeService;
-import d83t.bpmbackend.domain.aggregate.user.dto.ScheduleResponse;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -57,6 +57,19 @@ public class BodyShapeController {
             @AuthenticationPrincipal User user,
             @PathVariable Long bodyShapeId) {
         return BodyShapeResponse.SingleBodyShape.builder().bodyShapeArticle(bodyShapeService.getBodyShape(user, bodyShapeId)).build();
+    }
+
+    @Operation(summary = "내 눈바디 남기기 게시글 수정 API", description = "사용자가 내 눈바디 남기기 게시판 중 하나의 게시글을 클릭해서 수정합니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "내 눈바디 수정 성공", content = @Content(schema = @Schema(implementation = BodyShapeResponse.SingleBodyShape.class)))
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @PutMapping("/{bodyShapeId}")
+    public BodyShapeResponse.SingleBodyShape updateBodyShape(
+            @AuthenticationPrincipal User user,
+            @RequestPart List<MultipartFile> files,
+            @Nullable @ModelAttribute BodyShapeRequest bodyShapeRequest,
+            @PathVariable Long bodyShapeId) {
+        log.info("data input: {}", bodyShapeRequest.toString());
+        return BodyShapeResponse.SingleBodyShape.builder().bodyShapeArticle(bodyShapeService.updateBodyShape(user, files, bodyShapeRequest, bodyShapeId)).build();
     }
 
     @Operation(summary = "내 눈바디 남기기 삭제 API", description = "사용자가 내 눈바디를 삭제. token을 넘겨야합니다.")
