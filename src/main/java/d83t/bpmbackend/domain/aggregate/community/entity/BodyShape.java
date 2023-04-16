@@ -40,4 +40,13 @@ public class BodyShape extends DateEntity {
         this.images.add(bodyShapeImage);
     }
 
+    public void changeContent(String content){
+        this.content = content;
+    }
+
+    public void changeImage(List<BodyShapeImage> bodyShapeImages){
+        this.images.clear();
+        this.images.addAll(bodyShapeImages);
+    }
+
 }
