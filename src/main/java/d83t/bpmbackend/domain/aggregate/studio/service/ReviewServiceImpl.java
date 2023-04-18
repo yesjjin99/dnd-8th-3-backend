@@ -46,6 +46,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Value("${bpm.s3.bucket.review.path}")
     private String reviewPath;
+
+    @Value("${bpm.s3.bucket.base}")
+    private String basePath;
+
     @Value("${spring.environment}")
     private String env;
 
@@ -53,7 +57,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @PostConstruct
     private void init() {
-        this.fileDir = env.equals("local") ? FileUtils.getUploadPath() : this.reviewPath;
+        if (env.equals("local")) {
+            this.fileDir = FileUtils.getUploadPath();
+        } else if (env.equals("prod")) {
+            this.fileDir = this.basePath + this.reviewPath;
+        }
     }
 
     @Override
@@ -75,22 +83,24 @@ public class ReviewServiceImpl implements ReviewService {
         for (MultipartFile file : files) {
             String newName = FileUtils.createNewFileName(file.getOriginalFilename());
             String filePath = fileDir + newName;
-            System.out.println(filePath);
 
-            String imagePath = env.equals("prod") ? uploaderService.putS3(file, reviewPath, newName) : filePath;
             review.addReviewImage(ReviewImage.builder()
                     .originFileName(newName)
-                    .storagePathName(imagePath)
+                    .storagePathName(filePath)
                     .review(review)
                     .build());
             filePaths.add(filePath);
-            //로컬인 경우
-            try {
-                File localFile = new File(filePath);
-                file.transferTo(localFile);
-                FileUtils.removeNewFile(localFile);
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            if (env.equals("prod")) {
+                uploaderService.putS3(file, reviewPath, newName);
+            } else if (env.equals("local")) {
+                try {
+                    File localFile = new File(filePath);
+                    file.transferTo(localFile);
+                    FileUtils.removeNewFile(localFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
