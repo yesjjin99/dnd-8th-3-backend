@@ -36,6 +36,9 @@ public class QuestionBoard extends DateEntity {
     @JoinColumn(nullable = false)
     private Profile author;
 
+    @OneToMany(mappedBy = "questionBoard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionBoardFavorite> favorites;
+
     public void addQuestionBoardImage(QuestionBoardImage questionBoardImage){
         if(this.image == null){
             this.image = new ArrayList<>();

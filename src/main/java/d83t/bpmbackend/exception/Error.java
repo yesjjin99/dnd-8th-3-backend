@@ -9,7 +9,9 @@ public enum Error {
     INVALID_REQUEST("Invalid request value. Please check your request body.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_USER("Unauthorized user. Please check your token.", HttpStatus.UNAUTHORIZED),
     FILE_TRANSFER_FAIL("Failed to transfer file", HttpStatus.INTERNAL_SERVER_ERROR),
-    NOT_FOUND_USER_ID("kakao user not found", HttpStatus.NOT_FOUND),
+    NOT_FOUND_USER_ID("user id not found", HttpStatus.NOT_FOUND),
+    NOT_FOUND_KAKAO_ID("kakao user not found", HttpStatus.NOT_FOUND),
+    NOT_FOUND_PROFILE("user profile not found", HttpStatus.NOT_FOUND),
     USER_ALREADY_EXITS("user already exits", HttpStatus.CONFLICT),
     USER_ALREADY_REGISTER_SCHEDULE("user already register schedule", HttpStatus.BAD_REQUEST),
     USER_NICKNAME_ALREADY_EXITS("user nickname already exits", HttpStatus.CONFLICT),
@@ -25,6 +27,8 @@ public enum Error {
     NOT_FOUND_REVIEW("review not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_LIKE("like not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_QUESTION_ARTICLE("question article not found", HttpStatus.NOT_FOUND),
+    ALREADY_FAVORITE_QUESTION_BOARD("This is a post on the question board that I have already liked.", HttpStatus.UNPROCESSABLE_ENTITY),
+    ALREADY_UN_FAVORITE_QUESTION_BOARD("This is a post on the question board that I have already disliked.", HttpStatus.UNPROCESSABLE_ENTITY),
     NOT_MATCH_USER("the author and the logged-in user are different", HttpStatus.CONFLICT),
     FILE_REQUIRED("file is required", HttpStatus.NOT_FOUND);
 

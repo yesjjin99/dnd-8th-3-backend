@@ -31,6 +31,12 @@ public class QuestionBoardResponse {
     @Schema(description = "작성자")
     private QuestionBoardResponse.Author author;
 
+    @Schema(description = "좋아요 여부")
+    private Boolean favorited;
+
+    @Schema(description = "게시글 좋아요 갯수")
+    private Long favoritesCount;
+
     @Builder
     @Getter
     public static class Author{
