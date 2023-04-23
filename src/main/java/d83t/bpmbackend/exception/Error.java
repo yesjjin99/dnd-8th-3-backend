@@ -26,7 +26,8 @@ public enum Error {
     NOT_FOUND_LIKE("like not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_QUESTION_ARTICLE("question article not found", HttpStatus.NOT_FOUND),
     NOT_MATCH_USER("the author and the logged-in user are different", HttpStatus.CONFLICT),
-    FILE_REQUIRED("file is required", HttpStatus.NOT_FOUND);
+    FILE_REQUIRED("file is required", HttpStatus.NOT_FOUND),
+    NOT_FOUND_STORY("story not found", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus status;
