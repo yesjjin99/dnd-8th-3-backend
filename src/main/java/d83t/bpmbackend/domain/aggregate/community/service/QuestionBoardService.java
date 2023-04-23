@@ -17,4 +17,8 @@ public interface QuestionBoardService {
     QuestionBoardResponse updateQuestionBoardArticle(User user, List<MultipartFile> files, QuestionBoardRequest questionBoardRequest, Long questionBoardArticleId);
     
     void deleteQuestionBoardArticle(User user, Long questionBoardArticleId);
+
+    QuestionBoardResponse favoriteQuestionBoardArticle(User user, Long questionBoardArticleId);
+
+    QuestionBoardResponse unfavoriteQuestionBoardArticle(User user, Long questionBoardArticleId);
 }

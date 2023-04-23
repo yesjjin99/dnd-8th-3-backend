@@ -1,9 +1,11 @@
 package d83t.bpmbackend.domain.aggregate.profile.service;
 
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileDto;
+import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileResponse;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileUpdateRequest;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileUpdateResponse;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
+import d83t.bpmbackend.domain.aggregate.profile.repository.ProfileRepository;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.domain.aggregate.user.repository.UserRepository;
 import d83t.bpmbackend.exception.CustomException;
@@ -13,12 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService{
 
     private final UserRepository userRepository;
     private final ProfileImageService profileImageService;
+    private final ProfileRepository profileRepository;
 
     @Transactional
     @Override
@@ -39,4 +43,17 @@ public class ProfileServiceImpl implements ProfileService{
                 .image(updateProfile.getStoragePathName())
                 .build();
     }
+
+    @Override
+    public ProfileResponse getProfile(String nickname) {
+        Profile profile = profileRepository.findByNickName(nickname).orElseThrow(()->{
+            throw new CustomException(Error.NOT_FOUND_PROFILE);
+        });
+        return ProfileResponse.builder()
+                .nickname(profile.getNickName())
+                .image(profile.getStoragePathName())
+                .build();
+    }
+
+
 }

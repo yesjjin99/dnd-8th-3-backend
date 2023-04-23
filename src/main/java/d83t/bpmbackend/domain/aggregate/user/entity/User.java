@@ -1,6 +1,7 @@
 package d83t.bpmbackend.domain.aggregate.user.entity;
 
 import d83t.bpmbackend.base.entity.DateEntity;
+import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardFavorite;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 
 @Builder
@@ -34,6 +36,9 @@ public class User extends DateEntity implements UserDetails {
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Schedule schedule;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionBoardFavorite> questionBoardFavorite;
 
     public void updateProfile(Profile profile){
         this.profile = profile;

@@ -4,10 +4,14 @@ import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeResponse;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardRequest;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardResponse;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
+import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardFavorite;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardImage;
+import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardFavoriteRepository;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardRepository;
+import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileResponse;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
 import d83t.bpmbackend.domain.aggregate.profile.repository.ProfileRepository;
+import d83t.bpmbackend.domain.aggregate.profile.service.ProfileService;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.domain.aggregate.user.repository.UserRepository;
 import d83t.bpmbackend.exception.CustomException;
@@ -38,8 +42,10 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
 
     private final UserRepository userRepository;
     private final S3UploaderService uploaderService;
+    private final ProfileService profileService;
     private final ProfileRepository profileRepository;
     private final QuestionBoardRepository questionBoardRepository;
+    private final QuestionBoardFavoriteRepository questionBoardFavoriteRepository;
 
     @Value("${bpm.s3.bucket.question.board.path}")
     private String questionBoardPath;
@@ -79,7 +85,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .build();
 
         List<String> filePaths = new ArrayList<>();
-        if(files != null && files.size() != 0) {
+        if (files != null && files.size() != 0) {
             for (MultipartFile file : files) {
                 String newName = FileUtils.createNewFileName(file.getOriginalFilename());
                 String filePath = fileDir + newName;
@@ -105,18 +111,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
 
         questionBoardRepository.save(questionBoard);
 
-        return QuestionBoardResponse.builder()
-                .id(questionBoard.getId())
-                .createdAt(questionBoard.getCreatedDate())
-                .author(QuestionBoardResponse.Author.builder()
-                        .nickname(profile.getNickName())
-                        .profilePath(profile.getStoragePathName())
-                        .build())
-                .updatedAt(questionBoard.getModifiedDate())
-                .filesPath(filePaths)
-                .title(questionBoard.getTitle())
-                .content(questionBoard.getContent())
-                .build();
+        return convertResponse(user, questionBoard);
     }
 
     @Transactional(readOnly = true)
@@ -134,20 +129,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
         questionBoards = questionBoardRepository.findByNickName(pageable, profile.getNickName());
 
         return questionBoards.stream().map(questionBoard -> {
-            return QuestionBoardResponse.builder()
-                    .id(questionBoard.getId())
-                    .title(questionBoard.getTitle())
-                    .content(questionBoard.getContent())
-                    .createdAt(questionBoard.getCreatedDate())
-                    .updatedAt(questionBoard.getModifiedDate())
-                    .filesPath(questionBoard.getImage().stream().map(images -> {
-                        return images.getStoragePathName();
-                    }).collect(Collectors.toList()))
-                    .author(QuestionBoardResponse.Author.builder()
-                            .nickname(questionBoard.getAuthor().getNickName())
-                            .profilePath(questionBoard.getAuthor().getStoragePathName())
-                            .build())
-                    .build();
+            return convertResponse(user, questionBoard);
         }).collect(Collectors.toList());
 
     }
@@ -159,24 +141,11 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
         });
 
         List<String> filePaths = new ArrayList<>();
-        Profile author = questionBoard.getAuthor();
         List<QuestionBoardImage> images = questionBoard.getImage();
-        for (
-                QuestionBoardImage image : images) {
+        for (QuestionBoardImage image : images) {
             filePaths.add(image.getStoragePathName());
         }
-        return QuestionBoardResponse.builder()
-                .id(questionBoard.getId())
-                .createdAt(questionBoard.getCreatedDate())
-                .author(QuestionBoardResponse.Author.builder()
-                        .nickname(author.getNickName())
-                        .profilePath(author.getStoragePathName())
-                        .build())
-                .updatedAt(questionBoard.getModifiedDate())
-                .filesPath(filePaths)
-                .title(questionBoard.getTitle())
-                .content(questionBoard.getContent())
-                .build();
+        return convertResponse(user, questionBoard);
     }
 
     @Override
@@ -188,14 +157,14 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
             throw new CustomException(Error.NOT_FOUND_USER_ID);
         });
 
-        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() ->{
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
         });
 
-        if(questionBoardRequest.getTitle() != null){
-                questionBoard.changeTitle(questionBoardRequest.getTitle());
+        if (questionBoardRequest.getTitle() != null) {
+            questionBoard.changeTitle(questionBoardRequest.getTitle());
         }
-        if(questionBoardRequest.getContent() != null){
+        if (questionBoardRequest.getContent() != null) {
             questionBoard.changeContent(questionBoardRequest.getContent());
         }
         List<QuestionBoardImage> boardImages = questionBoard.getImage();
@@ -204,9 +173,9 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .collect(Collectors.toList());
 
         //파일 수정
-        if(files != null && files.size() != 0){
+        if (files != null && files.size() != 0) {
             filePaths = new ArrayList<String>();
-            List<QuestionBoardImage> questionBoardImages= new ArrayList<>();
+            List<QuestionBoardImage> questionBoardImages = new ArrayList<>();
             for (MultipartFile file : files) {
                 String newName = FileUtils.createNewFileName(file.getOriginalFilename());
                 String filePath = fileDir + newName;
@@ -233,22 +202,9 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
         }
         questionBoardRepository.save(questionBoard);
 
-        Profile profile = findUser.getProfile();
+        return convertResponse(user, questionBoard);
+    }
 
-        return QuestionBoardResponse.builder()
-                .id(questionBoard.getId())
-                .createdAt(questionBoard.getCreatedDate())
-                .author(QuestionBoardResponse.Author.builder()
-                        .nickname(profile.getNickName())
-                        .profilePath(profile.getStoragePathName())
-                        .build())
-                .updatedAt(questionBoard.getModifiedDate())
-                .filesPath(filePaths)
-                .title(questionBoard.getTitle())
-                .content(questionBoard.getContent())
-                .build();
-         }
-         
     public void deleteQuestionBoardArticle(User user, Long questionBoardArticleId) {
         QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
@@ -262,10 +218,78 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
         Long userId = findUser.getId();
         log.info("db userId : {}", userId);
         log.info("author : {}", questionBoard.getAuthor().getId());
-        if(questionBoard.getAuthor().getId().equals(userId)){
+        if (questionBoard.getAuthor().getId().equals(userId)) {
             questionBoardRepository.delete(questionBoard);
-        }else{
+        } else {
             throw new CustomException(Error.NOT_MATCH_USER);
         }
+    }
+
+    @Override
+    public QuestionBoardResponse favoriteQuestionBoardArticle(User user, Long questionBoardArticleId) {
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
+        });
+        User findUser = userRepository.findById(user.getId()).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        questionBoardFavoriteRepository.findByQuestionBoardIdAndUserId(questionBoard.getId(), user.getId()).ifPresent(e -> {
+            throw new CustomException(Error.ALREADY_FAVORITE_QUESTION_BOARD);
+        });
+
+
+        QuestionBoardFavorite favorite = QuestionBoardFavorite.builder().questionBoard(questionBoard).user(findUser).build();
+
+        questionBoardFavoriteRepository.save(favorite);
+
+        return convertResponse(user, questionBoard);
+    }
+
+    @Override
+    public QuestionBoardResponse unfavoriteQuestionBoardArticle(User user, Long questionBoardArticleId) {
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
+        });
+        userRepository.findById(user.getId()).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        QuestionBoardFavorite favorite = questionBoardFavoriteRepository.findByQuestionBoardIdAndUserId(questionBoard.getId(), user.getId()).orElseThrow(() -> {
+            throw new CustomException(Error.ALREADY_UN_FAVORITE_QUESTION_BOARD);
+        });
+
+        questionBoardFavoriteRepository.delete(favorite);
+        return convertResponse(user, questionBoard);
+    }
+
+    private QuestionBoardResponse convertResponse(User user, QuestionBoard questionBoard) {
+        ProfileResponse profile = profileService.getProfile(questionBoard.getAuthor().getNickName());
+
+        return QuestionBoardResponse.builder()
+                .id(questionBoard.getId())
+                .author(QuestionBoardResponse.Author.builder()
+                        .nickname(profile.getNickname())
+                        .profilePath(profile.getImage()).build())
+                .createdAt(questionBoard.getCreatedDate())
+                .updatedAt(questionBoard.getModifiedDate())
+                .content(questionBoard.getContent())
+                .title(questionBoard.getTitle())
+                .favorited(getFavoritesStatus(user, questionBoard))
+                .favoritesCount(getFavoritesCount(questionBoard.getId()))
+                .filesPath(questionBoard.getImage().stream()
+                        .map(QuestionBoardImage::getStoragePathName)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    private Boolean getFavoritesStatus(User user, QuestionBoard questionBoard) {
+        if (user == null) return false;
+        Optional<QuestionBoardFavorite> favoriteStatus = questionBoardFavoriteRepository.findByQuestionBoardIdAndUserId(questionBoard.getId(), user.getId());
+        return favoriteStatus.isEmpty() ? false : true;
+    }
+
+    private Long getFavoritesCount(Long questionBoardId) {
+        return questionBoardFavoriteRepository.countByQuestionBoardId(questionBoardId);
     }
 }
