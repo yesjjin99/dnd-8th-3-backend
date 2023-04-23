@@ -1,6 +1,6 @@
 package d83t.bpmbackend.domain.aggregate.community.service;
 
-import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeResponse;
+import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardParam;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardRequest;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardResponse;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
@@ -116,18 +116,23 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<QuestionBoardResponse> getQuestionBoardArticles(User user, Integer limit, Integer offset) {
+    public List<QuestionBoardResponse> getQuestionBoardArticles(User user, Integer limit, Integer offset, QuestionBoardParam questionBoardParam) {
         List<QuestionBoard> questionBoards = new ArrayList<>();
 
         limit = limit == null ? 20 : limit;
         offset = offset == null ? 0 : offset;
         Pageable pageable = PageRequest.of(offset, limit);
-        Long profileId = user.getProfile().getId();
-        Optional<Profile> findProfile = profileRepository.findById(profileId);
-        Profile profile = findProfile.get();
 
-        questionBoards = questionBoardRepository.findByNickName(pageable, profile.getNickName());
+        if (questionBoardParam.getNickname() != null) {
+            Profile profile = profileRepository.findByNickName(questionBoardParam.getNickname()).orElseThrow(() -> {
+                throw new CustomException(Error.NOT_FOUND_PROFILE);
+            });
+            Long profileId = profile.getId();
+            questionBoards = questionBoardRepository.findByProfileId(pageable, profileId);
 
+        }else{
+            questionBoards = questionBoardRepository.findByAll(pageable);
+        }
         return questionBoards.stream().map(questionBoard -> {
             return convertResponse(user, questionBoard);
         }).collect(Collectors.toList());
@@ -265,7 +270,12 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
 
     private QuestionBoardResponse convertResponse(User user, QuestionBoard questionBoard) {
         ProfileResponse profile = profileService.getProfile(questionBoard.getAuthor().getNickName());
-
+        List<String> imagePaths = List.of();
+        if (questionBoard.getImage() != null) {
+            imagePaths = questionBoard.getImage().stream()
+                    .map(QuestionBoardImage::getStoragePathName)
+                    .collect(Collectors.toList());
+        }
         return QuestionBoardResponse.builder()
                 .id(questionBoard.getId())
                 .author(QuestionBoardResponse.Author.builder()
@@ -277,9 +287,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .title(questionBoard.getTitle())
                 .favorited(getFavoritesStatus(user, questionBoard))
                 .favoritesCount(getFavoritesCount(questionBoard.getId()))
-                .filesPath(questionBoard.getImage().stream()
-                        .map(QuestionBoardImage::getStoragePathName)
-                        .collect(Collectors.toList()))
+                .filesPath(imagePaths)
                 .build();
     }
 
