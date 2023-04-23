@@ -10,8 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
     ProfileResponse signUp(ProfileRequest profileRequest, MultipartFile file);
+
     ScheduleResponse registerSchedule(User user, ScheduleRequest scheduleRequest);
+
     ScheduleResponse getSchedule(User user);
+
     void deleteSchedule(User user);
+
     ProfileResponse verification(UserRequestDto userRequestDto);
+
 }

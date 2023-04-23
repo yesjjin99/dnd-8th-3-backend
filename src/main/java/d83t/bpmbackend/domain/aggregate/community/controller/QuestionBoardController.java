@@ -1,10 +1,6 @@
 package d83t.bpmbackend.domain.aggregate.community.controller;
 
-import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeRequest;
-import d83t.bpmbackend.domain.aggregate.community.dto.BodyShapeResponse;
-import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardRequest;
-import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardResponse;
-import d83t.bpmbackend.domain.aggregate.community.service.BodyShapeService;
+import d83t.bpmbackend.domain.aggregate.community.dto.*;
 import d83t.bpmbackend.domain.aggregate.community.service.QuestionBoardService;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.exception.ErrorResponse;
@@ -47,8 +43,9 @@ public class QuestionBoardController {
     public QuestionBoardResponse.MultiQuestionBoard getQuestionBoardArticles(
             @AuthenticationPrincipal User user,
             @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "offset", required = false) Integer offset) {
-        List<QuestionBoardResponse> questionArticles = questionBoardService.getQuestionBoardArticles(user, limit, offset);
+            @RequestParam(value = "offset", required = false) Integer offset,
+            @ModelAttribute QuestionBoardParam questionBoardParam) {
+        List<QuestionBoardResponse> questionArticles = questionBoardService.getQuestionBoardArticles(user, limit, offset, questionBoardParam);
         return QuestionBoardResponse.MultiQuestionBoard.builder().questionBoardResponseList(questionArticles).questionBoardCount(questionArticles.size()).build();
     }
 

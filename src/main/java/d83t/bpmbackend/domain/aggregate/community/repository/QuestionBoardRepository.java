@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface QuestionBoardRepository extends JpaRepository<QuestionBoard, Long> {
+    @Query("SELECT a FROM QuestionBoard a WHERE a.author.id= :profileId ORDER BY a.createdDate DESC")
+    List<QuestionBoard> findByProfileId(Pageable pageable, @Param("profileId") Long profileId);
 
-    @Query("SELECT a FROM QuestionBoard a WHERE a.author.nickName= :nickName ORDER BY a.createdDate DESC")
-    List<QuestionBoard> findByNickName(Pageable pageable, @Param("nickName") String nickName);
+    @Query("SELECT a FROM QuestionBoard a ORDER BY a.createdDate DESC")
+    List<QuestionBoard> findByAll(Pageable pageable);
 }
