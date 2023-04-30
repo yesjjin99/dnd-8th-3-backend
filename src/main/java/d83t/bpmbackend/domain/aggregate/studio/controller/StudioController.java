@@ -34,8 +34,6 @@ public class StudioController {
 
     @Operation(summary = "스튜디오 등록 API", description = "스튜디오 필수, 추가 정보를 받아 등록")
     @ApiResponse(responseCode = "201", description = "스튜디오 등록 성공", content = @Content(schema = @Schema(implementation = StudioResponseDto.class)))
-    @ApiResponse(responseCode = "404", description = "스튜디오를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    @ApiResponse(responseCode = "409", description = "이미 등록된 스튜디오입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @PostMapping
     public StudioResponseDto createStudio(
             @ModelAttribute @Valid StudioRequestDto requestDto,
@@ -63,7 +61,6 @@ public class StudioController {
             @AuthenticationPrincipal User user,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset) {
-        log.info("전체 스튜디오 리스트 조회");
         List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }

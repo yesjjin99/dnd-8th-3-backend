@@ -10,5 +10,6 @@ import java.util.List;
 public interface StoryService {
 
     StoryResponseDto createStory(StoryRequestDto storyRequestDto, List<MultipartFile> files, User user);
+    StoryResponseDto getStory(Long storyId, User user);
 
 }

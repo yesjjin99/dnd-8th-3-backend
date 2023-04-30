@@ -101,4 +101,11 @@ public class StoryServiceImpl implements StoryService {
 
         return new StoryResponseDto(savedStory);
     }
+
+    @Override
+    public StoryResponseDto getStory(Long storyId, User user) {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STORY));
+        return new StoryResponseDto(story);
+    }
 }
