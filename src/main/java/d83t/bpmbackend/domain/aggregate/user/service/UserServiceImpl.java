@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
         String studioName = studio == null ? scheduleRequest.getStudioName() : studio.getName();
 
         Schedule schedule = Schedule.builder()
+                .name(scheduleRequest.getScheduleName())
                 .studio(studio)
                 .user(user)
                 .studioName(studioName)
@@ -106,6 +107,7 @@ public class UserServiceImpl implements UserService {
         scheduleRepository.save(schedule);
 
         return ScheduleResponse.builder()
+                .scheduleName(schedule.getName())
                 .studioName(schedule.getStudioName())
                 .time(schedule.getTime())
                 .date(schedule.getDate())
