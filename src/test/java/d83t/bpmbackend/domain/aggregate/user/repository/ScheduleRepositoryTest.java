@@ -58,6 +58,7 @@ class ScheduleRepositoryTest {
     @Test
     void 스케줄조회하기() {
         Schedule schedule = Schedule.builder()
+                .name("스케줄 이름")
                 .user(user)
                 .studio(studio)
                 .memo("메모")
@@ -79,6 +80,7 @@ class ScheduleRepositoryTest {
     void 스케줄등록하기() {
 
         Schedule schedule = Schedule.builder()
+                .name("스케줄이름")
                 .user(user)
                 .studio(studio)
                 .memo("메모")
@@ -97,6 +99,7 @@ class ScheduleRepositoryTest {
     void 스케줄등록하기_스튜디오없을때(){
         Studio studio = null;
         Schedule schedule = Schedule.builder()
+                .name("스케줄 이름")
                 .user(user)
                 .studio(studio)
                 .memo("메모")
