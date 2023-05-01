@@ -123,4 +123,15 @@ public class QuestionBoardController {
         log.info("question board create comment input : {}", commentDto.getBody());
         return QuestionBoardCommentResponse.SingleComment.builder().comment(questionBoardCommentService.createComment(user, questionBoardArticleId, commentDto)).build();
     }
+
+    @Operation(summary = "질문하기 게시판 댓글들 조회 API", description = "사용자가 질문하기 게시판 중 하나의 게시글을 클릭하면 댓글들이 조회됩니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 댓글조회 성공")
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @GetMapping("/{questionBoardArticleId}/comments")
+    public QuestionBoardCommentResponse.MultiComments questionBoardArticleGetComments(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long questionBoardArticleId) {
+        log.info("question board get comments input : {}", questionBoardArticleId);
+        return QuestionBoardCommentResponse.MultiComments.builder().comments(questionBoardCommentService.getComments(user, questionBoardArticleId)).build();
+    }
 }

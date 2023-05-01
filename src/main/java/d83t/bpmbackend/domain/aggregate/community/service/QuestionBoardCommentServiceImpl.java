@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +50,20 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
         QuestionBoardComment comment = questionBoardCommentRepository.save(questionBoardComment);
 
         return convertComment(comment);
+    }
+
+    @Override
+    public List<QuestionBoardCommentResponse> getComments(User user, Long questionBoardArticleId) {
+        questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
+        });
+        List<QuestionBoardComment> comments = questionBoardCommentRepository.findAll().stream()
+                .filter(questionBoardComment -> questionBoardComment.getQuestionBoard().getId().equals(questionBoardArticleId)
+                ).collect(Collectors.toList());
+
+        return comments.stream().map(comment -> {
+            return convertComment(comment);
+        }).collect(Collectors.toList());
     }
 
     private QuestionBoardCommentResponse convertComment(QuestionBoardComment questionBoardComment) {
