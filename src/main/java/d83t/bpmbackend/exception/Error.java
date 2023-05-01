@@ -34,7 +34,11 @@ public enum Error {
     NOT_FOUND_STORY("story not found", HttpStatus.NOT_FOUND),
     NOT_AUTHOR_OF_POST("not author of post", HttpStatus.FORBIDDEN),
     NOT_FOUND_QUESTION_BOARD_COMMENT("not found question board article comment", HttpStatus.NOT_FOUND),
-    NOT_FOUND_QUESTION_BOARD_OR_COMMENT("not found question board or comment", HttpStatus.NOT_FOUND);
+    NOT_FOUND_QUESTION_BOARD_OR_COMMENT("not found question board or comment", HttpStatus.NOT_FOUND),
+    NOT_FOUND_QUESTION_BOARD_COMMENT_PARENT_ID("not found question board comment parent id", HttpStatus.NOT_FOUND),
+    DIFF_POST_CHILD_ID_PARENT_ID("The parent comment and the child comment have different post numbers.", HttpStatus.BAD_REQUEST);
+
+
 
     private final String message;
     private final HttpStatus status;

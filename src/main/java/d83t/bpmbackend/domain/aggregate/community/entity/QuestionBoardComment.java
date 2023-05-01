@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Builder
 @Getter
@@ -31,4 +34,17 @@ public class QuestionBoardComment extends DateEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private QuestionBoard questionBoard;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private QuestionBoardComment parent;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<QuestionBoardComment> children = new ArrayList<>();
+
+    // 부모 댓글 수정
+    public void updateParent(QuestionBoardComment parent){
+        this.parent = parent;
+    }
 }

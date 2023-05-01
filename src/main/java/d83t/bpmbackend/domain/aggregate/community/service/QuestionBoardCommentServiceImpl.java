@@ -38,6 +38,16 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
         User findUser = userRepository.findById(user.getId()).orElseThrow(()->{
             throw new CustomException(Error.NOT_FOUND_USER_ID);
         });
+        QuestionBoardComment parent = null;
+        //자식 댓글인 경우
+        if(commentDto.getParentId() != null){
+            parent = questionBoardCommentRepository.findById(commentDto.getParentId()).orElseThrow(() ->{
+                throw new CustomException(Error.NOT_FOUND_QUESTION_BOARD_COMMENT_PARENT_ID);
+            });
+            if(parent.getQuestionBoard().getId() != questionBoardArticleId){
+                throw new CustomException(Error.DIFF_POST_CHILD_ID_PARENT_ID);
+            }
+        }
 
         Profile profile = findUser.getProfile();
 
@@ -46,6 +56,10 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
                 .author(profile)
                 .body(commentDto.getBody())
                 .build();
+
+        if(parent != null){
+            questionBoardComment.updateParent(parent);
+        }
 
         QuestionBoardComment comment = questionBoardCommentRepository.save(questionBoardComment);
 
@@ -87,15 +101,27 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
     private QuestionBoardCommentResponse convertComment(QuestionBoardComment questionBoardComment) {
 
         ProfileResponse profile = profileService.getProfile(questionBoardComment.getAuthor().getNickName());
-
-        return QuestionBoardCommentResponse.builder()
-                .id(questionBoardComment.getId())
-                .author(QuestionBoardCommentResponse.Author.builder()
-                        .nickname(profile.getNickname())
-                        .profilePath(profile.getImage()).build())
-                .body(questionBoardComment.getBody())
-                .createdAt(questionBoardComment.getCreatedDate())
-                .updatedAt(questionBoardComment.getModifiedDate())
-                .build();
+        if(questionBoardComment.getParent() != null){
+            return QuestionBoardCommentResponse.builder()
+                    .id(questionBoardComment.getId())
+                    .author(QuestionBoardCommentResponse.Author.builder()
+                            .nickname(profile.getNickname())
+                            .profilePath(profile.getImage()).build())
+                    .body(questionBoardComment.getBody())
+                    .parentId(questionBoardComment.getParent().getId())
+                    .createdAt(questionBoardComment.getCreatedDate())
+                    .updatedAt(questionBoardComment.getModifiedDate())
+                    .build();
+        }else {
+            return QuestionBoardCommentResponse.builder()
+                    .id(questionBoardComment.getId())
+                    .author(QuestionBoardCommentResponse.Author.builder()
+                            .nickname(profile.getNickname())
+                            .profilePath(profile.getImage()).build())
+                    .body(questionBoardComment.getBody())
+                    .createdAt(questionBoardComment.getCreatedDate())
+                    .updatedAt(questionBoardComment.getModifiedDate())
+                    .build();
+        }
     }
 }

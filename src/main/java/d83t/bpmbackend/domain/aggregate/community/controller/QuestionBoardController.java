@@ -120,7 +120,7 @@ public class QuestionBoardController {
             @AuthenticationPrincipal User user,
             @PathVariable Long questionBoardArticleId,
             @RequestBody QuestionBoardCommentDto commentDto) {
-        log.info("question board create comment input : {}", commentDto.getBody());
+        log.info("question board create comment input : {}", commentDto.toString());
         return QuestionBoardCommentResponse.SingleComment.builder().comment(questionBoardCommentService.createComment(user, questionBoardArticleId, commentDto)).build();
     }
 

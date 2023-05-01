@@ -17,6 +17,8 @@ public class QuestionBoardCommentResponse {
 
     private Author author;
 
+    private Long parentId;
+
     @Builder
     @Getter
     public static class Author {
