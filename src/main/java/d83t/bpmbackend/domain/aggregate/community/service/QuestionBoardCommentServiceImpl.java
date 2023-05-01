@@ -4,6 +4,7 @@ import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentDto;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentResponse;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardComment;
+import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardCommentQueryDSLRepository;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardCommentRepository;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardRepository;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileResponse;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentService {
     private final QuestionBoardRepository questionBoardRepository;
     private final QuestionBoardCommentRepository questionBoardCommentRepository;
+    private final QuestionBoardCommentQueryDSLRepository questionBoardCommentQueryDSLRepository;
     private final UserRepository userRepository;
     private final ProfileService profileService;
 
@@ -35,16 +37,16 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
         QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
         });
-        User findUser = userRepository.findById(user.getId()).orElseThrow(()->{
+        User findUser = userRepository.findById(user.getId()).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_USER_ID);
         });
         QuestionBoardComment parent = null;
         //자식 댓글인 경우
-        if(commentDto.getParentId() != null){
-            parent = questionBoardCommentRepository.findById(commentDto.getParentId()).orElseThrow(() ->{
+        if (commentDto.getParentId() != null) {
+            parent = questionBoardCommentRepository.findById(commentDto.getParentId()).orElseThrow(() -> {
                 throw new CustomException(Error.NOT_FOUND_QUESTION_BOARD_COMMENT_PARENT_ID);
             });
-            if(parent.getQuestionBoard().getId() != questionBoardArticleId){
+            if (parent.getQuestionBoard().getId() != questionBoardArticleId) {
                 throw new CustomException(Error.DIFF_POST_CHILD_ID_PARENT_ID);
             }
         }
@@ -57,7 +59,7 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
                 .body(commentDto.getBody())
                 .build();
 
-        if(parent != null){
+        if (parent != null) {
             questionBoardComment.updateParent(parent);
         }
 
@@ -68,10 +70,10 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
 
     @Override
     public List<QuestionBoardCommentResponse> getComments(User user, Long questionBoardArticleId) {
-        questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
+        QuestionBoard questionBoard = questionBoardRepository.findById(questionBoardArticleId).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_QUESTION_ARTICLE);
         });
-        List<QuestionBoardComment> comments = questionBoardCommentRepository.findAll().stream()
+        List<QuestionBoardComment> comments = questionBoardCommentQueryDSLRepository.findAllByQuestionComment(questionBoard).stream()
                 .filter(questionBoardComment -> questionBoardComment.getQuestionBoard().getId().equals(questionBoardArticleId)
                 ).collect(Collectors.toList());
 
@@ -82,17 +84,17 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
 
     @Override
     public void deleteComment(User user, Long questionBoardArticleId, Long commentId) {
-        QuestionBoardComment questionBoardComment = questionBoardCommentRepository.findByQuestionBoardIdAndId(questionBoardArticleId, commentId).orElseThrow(()->{
+        QuestionBoardComment questionBoardComment = questionBoardCommentRepository.findByQuestionBoardIdAndId(questionBoardArticleId, commentId).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_QUESTION_BOARD_OR_COMMENT);
         });
 
-        User findUser = userRepository.findById(user.getId()).orElseThrow(()->{
+        User findUser = userRepository.findById(user.getId()).orElseThrow(() -> {
             throw new CustomException(Error.NOT_FOUND_USER_ID);
         });
 
         Profile profile = findUser.getProfile();
         //작성자인지 확인
-        if(!questionBoardComment.getAuthor().getId().equals(profile.getId())){
+        if (!questionBoardComment.getAuthor().getId().equals(profile.getId())) {
             throw new CustomException(Error.NOT_AUTHOR_OF_POST);
         }
         questionBoardCommentRepository.delete(questionBoardComment);
@@ -101,7 +103,7 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
     private QuestionBoardCommentResponse convertComment(QuestionBoardComment questionBoardComment) {
 
         ProfileResponse profile = profileService.getProfile(questionBoardComment.getAuthor().getNickName());
-        if(questionBoardComment.getParent() != null){
+        if (questionBoardComment.getParent() != null) {
             return QuestionBoardCommentResponse.builder()
                     .id(questionBoardComment.getId())
                     .author(QuestionBoardCommentResponse.Author.builder()
@@ -112,7 +114,7 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
                     .createdAt(questionBoardComment.getCreatedDate())
                     .updatedAt(questionBoardComment.getModifiedDate())
                     .build();
-        }else {
+        } else {
             return QuestionBoardCommentResponse.builder()
                     .id(questionBoardComment.getId())
                     .author(QuestionBoardCommentResponse.Author.builder()
