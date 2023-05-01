@@ -31,7 +31,8 @@ public enum Error {
     ALREADY_UN_FAVORITE_QUESTION_BOARD("This is a post on the question board that I have already disliked.", HttpStatus.UNPROCESSABLE_ENTITY),
     NOT_MATCH_USER("the author and the logged-in user are different", HttpStatus.CONFLICT),
     FILE_REQUIRED("file is required", HttpStatus.NOT_FOUND),
-    NOT_FOUND_STORY("story not found", HttpStatus.NOT_FOUND);
+    NOT_FOUND_STORY("story not found", HttpStatus.NOT_FOUND),
+    NOT_AUTHOR_OF_POST("not author of post", HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final HttpStatus status;
