@@ -36,5 +36,6 @@ public class QuestionBoardCommentResponse {
     @Getter
     public static class MultiComments {
         List<QuestionBoardCommentResponse> comments;
+        Integer commentsCount;
     }
 }

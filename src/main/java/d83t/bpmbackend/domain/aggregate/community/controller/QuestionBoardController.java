@@ -132,6 +132,9 @@ public class QuestionBoardController {
             @AuthenticationPrincipal User user,
             @PathVariable Long questionBoardArticleId) {
         log.info("question board get comments input : {}", questionBoardArticleId);
-        return QuestionBoardCommentResponse.MultiComments.builder().comments(questionBoardCommentService.getComments(user, questionBoardArticleId)).build();
+        List<QuestionBoardCommentResponse> comments = questionBoardCommentService.getComments(user, questionBoardArticleId);
+        return QuestionBoardCommentResponse.MultiComments.builder().comments(comments).commentsCount(comments.size()).build();
     }
+
+
 }
