@@ -37,6 +37,9 @@ public class QuestionBoard extends DateEntity {
     private Profile author;
 
     @OneToMany(mappedBy = "questionBoard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionBoardComment> comments;
+
+    @OneToMany(mappedBy = "questionBoard", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionBoardFavorite> favorites;
 
     public void addQuestionBoardImage(QuestionBoardImage questionBoardImage){
