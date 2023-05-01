@@ -110,7 +110,7 @@ public class QuestionBoardController {
     }
 
     /**
-     *  댓글  CRUD
+     * 댓글  CRUD
      */
     @Operation(summary = "질문하기 게시판 댓글 작성 API", description = "사용자가 질문하기 게시판 중 하나의 게시글을 클릭해서 댓글을 작성합니다. token을 넘겨야합니다.")
     @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 댓글작성 성공")
@@ -134,6 +134,18 @@ public class QuestionBoardController {
         log.info("question board get comments input : {}", questionBoardArticleId);
         List<QuestionBoardCommentResponse> comments = questionBoardCommentService.getComments(user, questionBoardArticleId);
         return QuestionBoardCommentResponse.MultiComments.builder().comments(comments).commentsCount(comments.size()).build();
+    }
+
+    @Operation(summary = "질문하기 게시판 댓글들 삭제 API", description = "사용자가 질문하기 게시판 중 게시글의 댓글이 삭제됩니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 댓글삭제 성공")
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @DeleteMapping("/{questionBoardArticleId}/comments/{commentId}")
+    public void questionBoardArticleDeleteComments(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long questionBoardArticleId,
+            @PathVariable Long commentId) {
+        log.info("question board delete comments input : questionBoardArticleId {}, commentId {}", questionBoardArticleId, commentId);
+        questionBoardCommentService.deleteComment(user, questionBoardArticleId, commentId);
     }
 
 

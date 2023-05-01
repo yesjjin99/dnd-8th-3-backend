@@ -66,6 +66,24 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteComment(User user, Long questionBoardArticleId, Long commentId) {
+        QuestionBoardComment questionBoardComment = questionBoardCommentRepository.findByQuestionBoardIdAndId(questionBoardArticleId, commentId).orElseThrow(()->{
+            throw new CustomException(Error.NOT_FOUND_QUESTION_BOARD_OR_COMMENT);
+        });
+
+        User findUser = userRepository.findById(user.getId()).orElseThrow(()->{
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        Profile profile = findUser.getProfile();
+        //작성자인지 확인
+        if(!questionBoardComment.getAuthor().getId().equals(profile.getId())){
+            throw new CustomException(Error.NOT_AUTHOR_OF_POST);
+        }
+        questionBoardCommentRepository.delete(questionBoardComment);
+    }
+
     private QuestionBoardCommentResponse convertComment(QuestionBoardComment questionBoardComment) {
 
         ProfileResponse profile = profileService.getProfile(questionBoardComment.getAuthor().getNickName());
