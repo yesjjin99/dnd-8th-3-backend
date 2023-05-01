@@ -1,6 +1,7 @@
 package d83t.bpmbackend.domain.aggregate.community.controller;
 
 import d83t.bpmbackend.domain.aggregate.community.dto.*;
+import d83t.bpmbackend.domain.aggregate.community.service.QuestionBoardCommentService;
 import d83t.bpmbackend.domain.aggregate.community.service.QuestionBoardService;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.exception.ErrorResponse;
@@ -23,6 +24,7 @@ import java.util.List;
 @Slf4j
 public class QuestionBoardController {
     private final QuestionBoardService questionBoardService;
+    private final QuestionBoardCommentService questionBoardCommentService;
 
     @Operation(summary = "질문하기 게시판 게시글 등록 API", description = "사용자가 질문하기 게시판에 질문을 등록합니다. token을 넘겨야합니다.")
     @ApiResponse(responseCode = "200", description = "질문하기 게시판 등록 성공", content = @Content(schema = @Schema(implementation = QuestionBoardResponse.SingleQuestionBoard.class)))
@@ -107,4 +109,18 @@ public class QuestionBoardController {
         return QuestionBoardResponse.SingleQuestionBoard.builder().questionBoardResponse(questionBoardService.unfavoriteQuestionBoardArticle(user, questionBoardArticleId)).build();
     }
 
+    /**
+     *  댓글  CRUD
+     */
+    @Operation(summary = "질문하기 게시판 댓글 작성 API", description = "사용자가 질문하기 게시판 중 하나의 게시글을 클릭해서 댓글을 작성합니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 댓글작성 성공")
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @PostMapping("/{questionBoardArticleId}/comments")
+    public QuestionBoardCommentResponse.SingleComment questionBoardArticleCreateComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long questionBoardArticleId,
+            @RequestBody QuestionBoardCommentDto commentDto) {
+        log.info("question board create comment input : {}", commentDto.getBody());
+        return QuestionBoardCommentResponse.SingleComment.builder().comment(questionBoardCommentService.createComment(user, questionBoardArticleId, commentDto)).build();
+    }
 }
