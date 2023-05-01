@@ -18,7 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -77,9 +80,16 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
                 .filter(questionBoardComment -> questionBoardComment.getQuestionBoard().getId().equals(questionBoardArticleId)
                 ).collect(Collectors.toList());
 
-        return comments.stream().map(comment -> {
-            return convertComment(comment);
-        }).collect(Collectors.toList());
+        List<QuestionBoardCommentResponse> result = new ArrayList<>();
+        Map<Long, QuestionBoardCommentResponse> map = new HashMap<>();
+
+        comments.stream().forEach(c -> {
+            QuestionBoardCommentResponse cdto = convertComment(c);
+            map.put(c.getId(), cdto);
+            if (c.getParent() != null) map.get(c.getParent().getId()).addChildren(cdto);
+            else result.add(cdto);
+        });
+        return result;
     }
 
     @Override

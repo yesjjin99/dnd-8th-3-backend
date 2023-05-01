@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -18,6 +19,8 @@ public class QuestionBoardCommentResponse {
     private Author author;
 
     private Long parentId;
+
+    private List<QuestionBoardCommentResponse> children;
 
     @Builder
     @Getter
@@ -39,5 +42,12 @@ public class QuestionBoardCommentResponse {
     public static class MultiComments {
         List<QuestionBoardCommentResponse> comments;
         Integer commentsCount;
+    }
+
+    public void addChildren(QuestionBoardCommentResponse commentResponse){
+        if(this.children == null){
+            this.children = new ArrayList<>();
+        }
+        this.children.add(commentResponse);
     }
 }
