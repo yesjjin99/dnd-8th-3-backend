@@ -67,6 +67,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public ReviewResponseDto createReview(Long studioId, User user, List<MultipartFile> files, ReviewRequestDto requestDto) {
+        if (files == null || files.size() == 0) {
+            throw new CustomException(Error.FILE_REQUIRED);
+        }
         if (files.size() > 5) {
             throw new CustomException(Error.FILE_SIZE_MAX);
         }
@@ -146,7 +149,6 @@ public class ReviewServiceImpl implements ReviewService {
         return new ReviewResponseDto(review, isLiked);
     }
 
-    // TODO: 작성자인지 판단하는 검증 로직 추가
     @Override
     @Transactional
     public void deleteReview(User user, Long studioId, Long reviewId) {
@@ -154,10 +156,16 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STUDIO));
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_REVIEW));
+        User findUser = userRepository.findByKakaoId(user.getKakaoId())
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
 
-        studio.removeRecommend(review.getRecommends());
-        studio.removeReview(review);
-        reviewRepository.delete(review);
-        studioRepository.save(studio);
+        if (review.getAuthor().getId().equals(findUser.getProfile().getId())) {
+            studio.removeRecommend(review.getRecommends());
+            studio.removeReview(review);
+            reviewRepository.delete(review);
+            studioRepository.save(studio);
+        } else {
+            throw new CustomException(Error.NOT_MATCH_USER);
+        }
     }
 }
