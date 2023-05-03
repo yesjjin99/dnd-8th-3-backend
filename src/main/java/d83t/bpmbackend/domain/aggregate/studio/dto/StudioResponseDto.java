@@ -18,8 +18,8 @@ public class StudioResponseDto {
     private Long id;
     private String name;
     private String address;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private String firstTag;
     private String secondTag;
     private Map<String, Integer> topRecommends;
@@ -29,7 +29,7 @@ public class StudioResponseDto {
     private String price;
     private List<String> filesPath;
     private String content;
-    private double rating;
+    private Double rating;
     private int reviewCount;
     private int scrapCount;
     private ZonedDateTime createdAt;

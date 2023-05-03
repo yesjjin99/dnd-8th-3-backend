@@ -53,6 +53,7 @@ public class LikeServiceImpl implements LikeService {
         Like like = likeRepository.findByReviewIdAndUserId(reviewId, profile.getId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_LIKE));
 
+        // 작성자 검증
         if (like.getUser().getId().equals(profile.getId())) {
             review.removeLike(like);
             reviewRepository.save(review);

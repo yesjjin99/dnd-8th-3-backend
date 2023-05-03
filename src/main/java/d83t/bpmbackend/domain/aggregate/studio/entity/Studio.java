@@ -23,10 +23,10 @@ public class Studio extends DateEntity {
     private String address;
 
     @Column
-    private double latitude;
+    private Double latitude;
 
     @Column
-    private double longitude;
+    private Double longitude;
 
     @Column
     private String firstTag;
@@ -59,7 +59,7 @@ public class Studio extends DateEntity {
     private String content;
 
     @Column(columnDefinition = "double precision default 0.0")
-    private double rating;
+    private Double rating;
 
     @Column(columnDefinition = "int default 0")
     private int reviewCount;
@@ -71,7 +71,7 @@ public class Studio extends DateEntity {
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
-    public Studio(String name, String address, double latitude, double longitude, String firstTag, String secondTag, String phone, String sns, String openHours, String price, List<StudioImage> images, String content, double rating, int reviewCount, int scrapCount) {
+    public Studio(String name, String address, Double latitude, Double longitude, String firstTag, String secondTag, String phone, String sns, String openHours, String price, List<StudioImage> images, String content, Double rating, int reviewCount, int scrapCount) {
         this.name = name;
         this.address = address;
         this.latitude = latitude;
@@ -141,7 +141,7 @@ public class Studio extends DateEntity {
     public Review addReview(Review review) {
         this.reviews.add(review);
         if (review.getRating() != 0.0) {
-            double avg = ((this.rating * reviewCount) + review.getRating()) / (reviewCount + 1);
+            Double avg = ((this.rating * reviewCount) + review.getRating()) / (reviewCount + 1);
             this.rating = avg;
         }
         this.reviewCount += 1;
@@ -152,7 +152,7 @@ public class Studio extends DateEntity {
     public void removeReview(Review review) {
         this.reviews.remove(review);
         if (review.getRating() != 0.0) {
-            double avg = ((this.rating * reviewCount) - review.getRating()) / (reviewCount - 1);
+            Double avg = ((this.rating * reviewCount) - review.getRating()) / (reviewCount - 1);
             this.rating = avg;
         }
         this.reviewCount -= 1;

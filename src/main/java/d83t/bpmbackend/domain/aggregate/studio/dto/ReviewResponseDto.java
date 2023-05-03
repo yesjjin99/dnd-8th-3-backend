@@ -19,7 +19,7 @@ public class ReviewResponseDto {
     private Long id;
     private StudioDto studio;
     private AuthorDto author;
-    private double rating;
+    private Double rating;
     private List<String> recommends;
     private List<String> filesPath;
     private String content;
@@ -58,7 +58,7 @@ public class ReviewResponseDto {
     public static class StudioDto {
         private Long id;
         private String name;
-        private double rating;
+        private Double rating;
         private String content;
     }
 

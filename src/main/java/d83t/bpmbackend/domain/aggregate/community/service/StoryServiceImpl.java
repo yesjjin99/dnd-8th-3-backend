@@ -59,7 +59,7 @@ public class StoryServiceImpl implements StoryService {
     @Override
     @Transactional
     public StoryResponseDto createStory(StoryRequestDto requestDto, List<MultipartFile> files, User user) {
-        if (files == null || files.size() == 0) {
+        if (files == null || files.isEmpty()) {
             throw new CustomException(Error.FILE_REQUIRED);
         }
         if (files.size() > 5) {

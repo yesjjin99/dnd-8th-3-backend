@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "리뷰 작성 요청 DTO")
 public class ReviewRequestDto {
-    private double rating;
+    private Double rating;
     private List<String> recommends;
     private String content;
 

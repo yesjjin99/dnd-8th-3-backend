@@ -67,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public ReviewResponseDto createReview(Long studioId, User user, List<MultipartFile> files, ReviewRequestDto requestDto) {
-        if (files == null || files.size() == 0) {
+        if (files == null || files.isEmpty()) {
             throw new CustomException(Error.FILE_REQUIRED);
         }
         if (files.size() > 5) {
@@ -125,11 +125,8 @@ public class ReviewServiceImpl implements ReviewService {
         Profile profile = findUser.getProfile();
 
         return reviews.stream().map(review -> {
-                    if (likeRepository.existsByReviewIdAndUserId(review.getId(), profile.getId())) {
-                        return new ReviewResponseDto(review, true);
-                    } else {
-                        return new ReviewResponseDto(review, false);
-                    }
+                    boolean isLiked = checkReviewLiked(review.getId(), profile.getId());
+                    return new ReviewResponseDto(review, isLiked);
                 }).collect(Collectors.toList());
     }
 
@@ -142,11 +139,73 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
         Profile profile = findUser.getProfile();
 
-        boolean isLiked = false;
-        if (likeRepository.existsByReviewIdAndUserId(reviewId, profile.getId())) {
-            isLiked = true;
-        }
+        boolean isLiked = checkReviewLiked(review.getId(), profile.getId());
         return new ReviewResponseDto(review, isLiked);
+    }
+
+    @Override
+    @Transactional
+    public ReviewResponseDto updateReview(User user, Long studioId, Long reviewId, List<MultipartFile> files, ReviewRequestDto requestDto) {
+        if (files == null || files.isEmpty()) {
+            throw new CustomException(Error.FILE_REQUIRED);
+        }
+        if (files.size() > 5) {
+            throw new CustomException(Error.FILE_SIZE_MAX);
+        }
+
+        User findUser = userRepository.findByKakaoId(user.getKakaoId())
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
+        Studio studio = studioRepository.findById(studioId)
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STUDIO));
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_REVIEW));
+
+        // 작성자 검증
+        Long profileId = findUser.getProfile().getId();
+        if (!review.getAuthor().getId().equals(profileId)) {
+            throw new CustomException(Error.NOT_MATCH_USER);
+        }
+
+        if (requestDto.getRating() != null) {
+            review.setRating(requestDto.getRating());
+        }
+        if (requestDto.getRecommends() != null) {
+            review.setRecommends(requestDto.getRecommends());
+        }
+        if (requestDto.getContent() != null) {
+            review.setContent(requestDto.getContent());
+        }
+        boolean isLiked = checkReviewLiked(review.getId(), profileId);
+
+        List<String> filePaths = new ArrayList<>();
+        List<ReviewImage> reviewImages = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String newName = FileUtils.createNewFileName(file.getOriginalFilename());
+            String filePath = fileDir + newName;
+
+            reviewImages.add(ReviewImage.builder()
+                    .originFileName(newName)
+                    .storagePathName(filePath)
+                    .review(review)
+                    .build());
+            filePaths.add(filePath);
+
+            if (env.equals("prod")) {
+                uploaderService.putS3(file, reviewPath, newName);
+            } else if (env.equals("local")) {
+                try {
+                    File localFile = new File(filePath);
+                    file.transferTo(localFile);
+                    FileUtils.removeNewFile(localFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        review.updateReviewImage(reviewImages);
+
+        Review savedReview = reviewRepository.save(review);
+        return new ReviewResponseDto(savedReview, isLiked);
     }
 
     @Override
@@ -162,10 +221,17 @@ public class ReviewServiceImpl implements ReviewService {
         if (review.getAuthor().getId().equals(findUser.getProfile().getId())) {
             studio.removeRecommend(review.getRecommends());
             studio.removeReview(review);
-            reviewRepository.delete(review);
             studioRepository.save(studio);
         } else {
             throw new CustomException(Error.NOT_MATCH_USER);
         }
+    }
+
+    private boolean checkReviewLiked(Long reviewId, Long profileId) {
+        boolean isLiked = false;
+        if (likeRepository.existsByReviewIdAndUserId(reviewId, profileId)) {
+            isLiked = true;
+        }
+        return isLiked;
     }
 }
