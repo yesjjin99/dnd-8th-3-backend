@@ -2,6 +2,7 @@ package d83t.bpmbackend.domain.aggregate.profile.entity;
 
 import d83t.bpmbackend.domain.aggregate.community.entity.BodyShape;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
+import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardComment;
 import d83t.bpmbackend.domain.aggregate.community.entity.Story;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Like;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Review;
@@ -47,6 +48,9 @@ public class Profile {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionBoard> myQuestionBoard;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionBoardComment> myQuestionBoardComments;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
