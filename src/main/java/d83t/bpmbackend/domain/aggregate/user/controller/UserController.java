@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -69,7 +70,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "내 일정 등록 성공", content = @Content(schema = @Schema(implementation = ScheduleResponse.class)))
     @ApiResponse(responseCode = "404", description = "스튜디오 이름이 잘못 들어왔습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @PostMapping("/schedule")
-    public ScheduleResponse registerSchedule(@AuthenticationPrincipal User user, @RequestBody ScheduleRequest scheduleRequest){
+    public ScheduleResponse registerSchedule(@AuthenticationPrincipal User user, @RequestBody @Valid ScheduleRequest scheduleRequest){
         log.info("request : "+ scheduleRequest.toString());
         return userService.registerSchedule(user, scheduleRequest);
     }

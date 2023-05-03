@@ -77,6 +77,7 @@ class UserControllerTest {
                 .build();
 
         scheduleRequest = ScheduleRequest.builder()
+                .scheduleName("스케줄 이름")
                 .date("2022-01-01")
                 .time("17:54:32")
                 .memo("메모입니다.")
