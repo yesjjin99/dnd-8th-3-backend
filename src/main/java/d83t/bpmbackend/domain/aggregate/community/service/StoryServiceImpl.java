@@ -160,4 +160,19 @@ public class StoryServiceImpl implements StoryService {
         Story savedStory = storyRepository.save(story);
         return new StoryResponseDto(savedStory);
     }
+
+    @Override
+    @Transactional
+    public void deleteStory(Long storyId, User user) {
+        User findUser = userRepository.findByKakaoId(user.getKakaoId())
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STORY));
+
+        if (story.getAuthor().getId().equals(findUser.getProfile().getId())) {
+            storyRepository.delete(story);
+        } else {
+            throw new CustomException(Error.NOT_MATCH_USER);
+        }
+    }
 }

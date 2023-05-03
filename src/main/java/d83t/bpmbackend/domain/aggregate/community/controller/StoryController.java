@@ -59,4 +59,12 @@ public class StoryController {
         log.info("community story update : {}", requestDto.toString());
         return storyService.updateStory(storyId, requestDto, files, user);
     }
+
+    @Operation(summary = "커뮤니티 글 삭제 API")
+    @DeleteMapping("/{storyId}")
+    public void deleteStory(
+            @PathVariable Long storyId,
+            @AuthenticationPrincipal User user) {
+        storyService.deleteStory(storyId, user);
+    }
 }
