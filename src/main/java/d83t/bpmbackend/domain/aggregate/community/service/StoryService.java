@@ -11,5 +11,6 @@ public interface StoryService {
 
     StoryResponseDto createStory(StoryRequestDto storyRequestDto, List<MultipartFile> files, User user);
     StoryResponseDto getStory(Long storyId, User user);
+    StoryResponseDto updateStory(Long storyId, StoryRequestDto storyRequestDto, List<MultipartFile> files, User user);
 
 }

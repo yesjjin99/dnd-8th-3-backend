@@ -108,4 +108,56 @@ public class StoryServiceImpl implements StoryService {
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STORY));
         return new StoryResponseDto(story);
     }
+
+    @Override
+    @Transactional
+    public StoryResponseDto updateStory(Long storyId, StoryRequestDto storyRequestDto, List<MultipartFile> files, User user) {
+        if (files.size() > 5) {
+            throw new CustomException(Error.FILE_SIZE_MAX);
+        }
+
+        User findUser = userRepository.findByKakaoId(user.getKakaoId())
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STORY));
+
+        // 작성자 검증
+        if (!story.getAuthor().getId().equals(findUser.getProfile().getId())) {
+            throw new CustomException(Error.NOT_MATCH_USER);
+        }
+
+        if (storyRequestDto.getContent() != null) {
+            story.setContent(storyRequestDto.getContent());
+        }
+
+        List<String> filePaths = new ArrayList<>();
+        List<StoryImage> storyImages = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String newName = FileUtils.createNewFileName(file.getOriginalFilename());
+            String filePath = fileDir + newName;
+
+            storyImages.add(StoryImage.builder()
+                    .originFileName(newName)
+                    .storagePathName(filePath)
+                    .story(story)
+                    .build());
+            filePaths.add(filePath);
+
+            if (env.equals("prod")) {
+                uploaderService.putS3(file, storyPath, newName);
+            } else if (env.equals("local")) {
+                try {
+                    File localFile = new File(filePath);
+                    file.transferTo(localFile);
+                    FileUtils.removeNewFile(localFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        story.updateStoryImage(storyImages);
+
+        Story savedStory = storyRepository.save(story);
+        return new StoryResponseDto(savedStory);
+    }
 }
