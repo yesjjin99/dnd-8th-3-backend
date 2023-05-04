@@ -36,4 +36,13 @@ public class Story extends DateEntity {
         }
         this.images.add(storyImage);
     }
+
+    public void updateStoryImage(List<StoryImage> images) {
+        this.images.clear();
+        this.images.addAll(images);
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

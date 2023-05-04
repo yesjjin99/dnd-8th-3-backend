@@ -26,7 +26,7 @@ public class StoryController {
 
     private final StoryService storyService;
 
-    @Operation(summary = "커뮤니티 스토리 등록 API", description = "커뮤니티 스토리 게시판에 글을 등록합니다")
+    @Operation(summary = "커뮤니티 글 등록 API", description = "커뮤니티 스토리 게시판에 글을 등록합니다")
     @ApiResponse(responseCode = "201", description = "스토리 등록 성공", content = @Content(schema = @Schema(implementation = StoryResponseDto.class)))
     @ApiResponse(responseCode = "400", description = "이미지가 5개 넘게 들어왔습니다", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "404", description = "잘못된 유저가 들어왔습니다", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -39,7 +39,7 @@ public class StoryController {
         return storyService.createStory(requestDto, files, user);
     }
 
-    @Operation(summary = "커뮤니티 스토리 상세조회 API", description = "커뮤니티 스토리 글을 상세 조회합니")
+    @Operation(summary = "커뮤니티 글 상세조회 API", description = "커뮤니티 스토리 글을 상세 조회합니")
     @ApiResponse(responseCode = "200", description = "스토리 상세조회 성공", content = @Content(schema = @Schema(implementation = StoryResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "스토리를 찾을 수 없습니다", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @GetMapping("/{storyId}")
@@ -47,5 +47,24 @@ public class StoryController {
             @PathVariable Long storyId,
             @AuthenticationPrincipal User user) {
         return storyService.getStory(storyId, user);
+    }
+
+    @Operation(summary = "커뮤니티 글 수정 API")
+    @PutMapping("/{storyId}")
+    public StoryResponseDto updateStory(
+            @PathVariable Long storyId,
+            @ModelAttribute StoryRequestDto requestDto,
+            @Nullable @RequestPart List<MultipartFile> files,
+            @AuthenticationPrincipal User user) {
+        log.info("community story update : {}", requestDto.toString());
+        return storyService.updateStory(storyId, requestDto, files, user);
+    }
+
+    @Operation(summary = "커뮤니티 글 삭제 API")
+    @DeleteMapping("/{storyId}")
+    public void deleteStory(
+            @PathVariable Long storyId,
+            @AuthenticationPrincipal User user) {
+        storyService.deleteStory(storyId, user);
     }
 }
