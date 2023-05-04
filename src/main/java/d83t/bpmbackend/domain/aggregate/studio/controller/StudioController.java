@@ -109,6 +109,18 @@ public class StudioController {
         return reviewService.findById(user, reviewId);
     }
 
+    @Operation(summary = "리뷰 업데이트 API")
+    @PutMapping("/{studioId}/review/{reviewId}")
+    public ReviewResponseDto updateReview(
+            @PathVariable Long studioId,
+            @PathVariable Long reviewId,
+            @RequestPart List<MultipartFile> files,
+            @ModelAttribute ReviewRequestDto requestDto,
+            @AuthenticationPrincipal User user) {
+        log.info("review update : {}", requestDto.toString());
+        return reviewService.updateReview(user, studioId, reviewId, files, requestDto);
+    }
+
     @Operation(summary = "리뷰 삭제 API")
     @DeleteMapping("/{studioId}/review/{reviewId}")
     public void deleteReview(

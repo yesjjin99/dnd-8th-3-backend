@@ -42,7 +42,6 @@ public class LikeServiceImpl implements LikeService {
         reviewRepository.save(review);
     }
 
-    // TODO: 작성자인지 판단하는 검증 로직 추가
     @Override
     public void deleteLike(User user, Long reviewId) {
         User findUser = userRepository.findByKakaoId(user.getKakaoId())
@@ -54,8 +53,12 @@ public class LikeServiceImpl implements LikeService {
         Like like = likeRepository.findByReviewIdAndUserId(reviewId, profile.getId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_LIKE));
 
-        review.removeLike(like);
-        likeRepository.delete(like);
-        reviewRepository.save(review);
+        // 작성자 검증
+        if (like.getUser().getId().equals(profile.getId())) {
+            review.removeLike(like);
+            reviewRepository.save(review);
+        } else {
+            throw new CustomException(Error.NOT_MATCH_USER);
+        }
     }
 }

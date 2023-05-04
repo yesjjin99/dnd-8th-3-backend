@@ -30,7 +30,7 @@ public class Review extends DateEntity {
     private Profile author;
 
     @Column
-    private double rating;
+    private Double rating;
 
     @ElementCollection
     @CollectionTable(name = "review_recommends", joinColumns = @JoinColumn(name = "review_id"))
@@ -50,7 +50,7 @@ public class Review extends DateEntity {
     private List<Like> likes = new ArrayList<>();
 
     @Builder
-    public Review(Studio studio, Profile author, double rating, List<String> recommends, List<ReviewImage> images, String content, int likeCount) {
+    public Review(Studio studio, Profile author, Double rating, List<String> recommends, List<ReviewImage> images, String content, int likeCount) {
         this.studio = studio;
         this.author = author;
         this.rating = rating;
@@ -67,8 +67,25 @@ public class Review extends DateEntity {
         this.images.add(image);
     }
 
+    public void updateReviewImage(List<ReviewImage> images) {
+        this.images.clear();
+        this.images.addAll(images);
+    }
+
     public void setStudio(Studio studio) {
         this.studio = studio;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public void setRecommends(List<String> recommends) {
+        this.recommends = recommends;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public void addLike(Like like, Profile user) {

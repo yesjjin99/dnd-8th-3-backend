@@ -11,5 +11,6 @@ public interface ReviewService {
     ReviewResponseDto createReview(Long studioId, User user, List<MultipartFile> files, ReviewRequestDto requestDto);
     List<ReviewResponseDto> findAll(User user, Long studioId, int page, int size, String sort);
     ReviewResponseDto findById(User user, Long reviewId);
+    ReviewResponseDto updateReview(User user, Long studioId, Long reviewId, List<MultipartFile> files, ReviewRequestDto requestDto);
     void deleteReview(User user, Long studioId, Long reviewId);
 }

@@ -16,8 +16,8 @@ public class StudioRequestDto {
     @NotBlank(message = "스튜디오 이름은 필수입니다")
     private String name;
     private String address;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private List<String> recommends;
     private String phone;
     private String sns;
