@@ -52,7 +52,7 @@ public class StudioController {
             @PathVariable Long studioId,
             @AuthenticationPrincipal User user) {
         log.info("studio id : " + studioId);
-        return studioService.findById(studioId);
+        return studioService.findById(studioId, user);
     }
 
     // TODO: 쿼리 스트링으로 필터를 받아 조회
@@ -63,7 +63,7 @@ public class StudioController {
             @AuthenticationPrincipal User user,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset) {
-        List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset);
+        List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset, user);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }
 
@@ -75,7 +75,7 @@ public class StudioController {
             @RequestParam String q,
             @AuthenticationPrincipal User user) {
         log.info("query param:" + q);
-        List<StudioResponseDto> findStudios = studioService.searchStudio(q);
+        List<StudioResponseDto> findStudios = studioService.searchStudio(q, user);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }
 
