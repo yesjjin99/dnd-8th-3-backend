@@ -54,9 +54,7 @@ public class ScrapServiceImpl implements ScrapService {
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
         Page<Scrap> scraps = scrapRepository.findByUserId(findUser.getId(), pageable);
 
-        return scraps.stream().map(scrap -> {
-            return new StudioResponseDto(scrap.getStudio(), true);
-        }).collect(Collectors.toList());
+        return scraps.stream().map(scrap -> new StudioResponseDto(scrap.getStudio(), true)).collect(Collectors.toList());
     }
 
     @Override
