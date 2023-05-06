@@ -1,5 +1,6 @@
 package d83t.bpmbackend.domain.aggregate.studio.service;
 
+import d83t.bpmbackend.domain.aggregate.studio.dto.StudioResponseDto;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Scrap;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Studio;
 import d83t.bpmbackend.domain.aggregate.studio.repository.ScrapRepository;
@@ -9,8 +10,15 @@ import d83t.bpmbackend.domain.aggregate.user.repository.UserRepository;
 import d83t.bpmbackend.exception.CustomException;
 import d83t.bpmbackend.exception.Error;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +43,20 @@ public class ScrapServiceImpl implements ScrapService {
 
         studio.addScrap(scrap);
         studioRepository.save(studio);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StudioResponseDto> findAllScrappedStudio(User user, int page, int size, String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+
+        User findUser = userRepository.findByKakaoId(user.getKakaoId())
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
+        Page<Scrap> scraps = scrapRepository.findByUserId(findUser.getId(), pageable);
+
+        return scraps.stream().map(scrap -> {
+            return new StudioResponseDto(scrap.getStudio(), true);
+        }).collect(Collectors.toList());
     }
 
     @Override
