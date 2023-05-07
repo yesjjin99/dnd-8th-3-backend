@@ -136,6 +136,19 @@ public class QuestionBoardController {
         return QuestionBoardCommentResponse.MultiComments.builder().comments(comments).commentsCount(comments.size()).build();
     }
 
+    @Operation(summary = "질문하기 게시판 댓글들 수정 API", description = "사용자가 질문하기 게시판 댓글을 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 댓글수정 성공")
+    @ApiResponse(responseCode = "404", description = "게시글이나 댓글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @PutMapping("/{questionBoardArticleId}/comments/{commentId}")
+    public QuestionBoardCommentResponse.SingleComment questionBoardArticleUpdateComments(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long questionBoardArticleId,
+            @PathVariable Long commentId,
+            @RequestBody QuestionBoardCommentUpdateDto questionBoardCommentUpdateDto) {
+        log.info("question board update comments input : {}", questionBoardCommentUpdateDto);
+        return QuestionBoardCommentResponse.SingleComment.builder().comment(questionBoardCommentService.updateComment(user, questionBoardArticleId, commentId, questionBoardCommentUpdateDto)).build();
+    }
+
     @Operation(summary = "질문하기 게시판 댓글들 삭제 API", description = "사용자가 질문하기 게시판 중 게시글의 댓글이 삭제됩니다. token을 넘겨야합니다.")
     @ApiResponse(responseCode = "200", description = "질문하기 게시판 게시글 댓글삭제 성공")
     @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

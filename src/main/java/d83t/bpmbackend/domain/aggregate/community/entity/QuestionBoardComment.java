@@ -47,4 +47,9 @@ public class QuestionBoardComment extends DateEntity {
     public void updateParent(QuestionBoardComment parent){
         this.parent = parent;
     }
+
+    //글 내용 수정
+    public void updateBody(String updateBody){
+        this.body = updateBody;
+    }
 }
