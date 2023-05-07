@@ -80,7 +80,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
         Profile profile = findUser.getProfile();
         QuestionBoard questionBoard = QuestionBoard.builder()
                 .author(profile)
-                .title(questionBoardRequest.getTitle())
+                .slug(questionBoardRequest.getTitle())
                 .content(questionBoardRequest.getContent())
                 .build();
 
@@ -130,7 +130,9 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
             Long profileId = profile.getId();
             questionBoards = questionBoardRepository.findByProfileId(pageable, profileId);
 
-        }else{
+        } else if (questionBoardParam.getSlug() != null) {
+            questionBoards = questionBoardRepository.searchQuestionBoardNames(questionBoardParam.getSlug(), pageable);
+        } else {
             questionBoards = questionBoardRepository.findByAll(pageable);
         }
         return questionBoards.stream().map(questionBoard -> {
@@ -284,9 +286,10 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .createdAt(questionBoard.getCreatedDate())
                 .updatedAt(questionBoard.getModifiedDate())
                 .content(questionBoard.getContent())
-                .title(questionBoard.getTitle())
+                .slug(questionBoard.getSlug())
                 .favorited(getFavoritesStatus(user, questionBoard))
                 .favoritesCount(getFavoritesCount(questionBoard.getId()))
+                .commentsCount(questionBoard.getComments().size())
                 .filesPath(imagePaths)
                 .build();
     }
