@@ -12,7 +12,7 @@ public enum Error {
     NOT_FOUND_USER_ID("user id not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_KAKAO_ID("kakao user not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_PROFILE("user profile not found", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXITS("user already exits", HttpStatus.CONFLICT),
+    USER_ALREADY_EXITS("kakaoId already exits", HttpStatus.CONFLICT),
     USER_ALREADY_REGISTER_SCHEDULE("user already register schedule", HttpStatus.BAD_REQUEST),
     USER_NICKNAME_ALREADY_EXITS("user nickname already exits", HttpStatus.CONFLICT),
     S3_UPLOAD_FAIL("upload fail", HttpStatus.INTERNAL_SERVER_ERROR),
