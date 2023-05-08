@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ProfileResponse verification(UserRequestDto userRequestDto) {
         User user = userRepository.findByKakaoId(userRequestDto.getKakaoId())
-                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_KAKAO_ID));
 
         Profile profile = user.getProfile();
 

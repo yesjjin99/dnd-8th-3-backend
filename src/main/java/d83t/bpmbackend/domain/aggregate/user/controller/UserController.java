@@ -2,6 +2,8 @@ package d83t.bpmbackend.domain.aggregate.user.controller;
 
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileRequest;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileResponse;
+import d83t.bpmbackend.domain.aggregate.studio.dto.StudioResponseDto;
+import d83t.bpmbackend.domain.aggregate.studio.service.ScrapService;
 import d83t.bpmbackend.domain.aggregate.user.dto.ScheduleRequest;
 import d83t.bpmbackend.domain.aggregate.user.dto.ScheduleResponse;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
@@ -19,6 +21,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
@@ -26,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
+    private final ScrapService scrapService;
 
     @Operation(summary = "카카오 로그인 API", description = "카카오 uid, profile에 대한 정보를 받아 프로필을 생성하고 로그인을 진행합니다.")
     @ApiResponse(responseCode = "200", description = "신규 회원 등록 성공", content = @Content(schema = @Schema(implementation = ProfileResponse.class)))
@@ -73,5 +78,16 @@ public class UserController {
     public ScheduleResponse registerSchedule(@AuthenticationPrincipal User user, @RequestBody @Valid ScheduleRequest scheduleRequest){
         log.info("request : "+ scheduleRequest.toString());
         return userService.registerSchedule(user, scheduleRequest);
+    }
+
+    @Operation(summary = "내가 스크랩한 스튜디오 리스트 조회 API", description = "page, size, sort 를 넘겨주시면 됩니다. 마찬가지로 sort 는 최신순(createdDate)와 같이 넘겨주세요.")
+    @GetMapping("/scrap")
+    public List<StudioResponseDto> findAllScrappedStudio(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdDate") String sort,
+            @AuthenticationPrincipal User user) {
+        log.info("page : " + page + " size : " + size + " sort : " + sort);
+        return scrapService.findAllScrappedStudio(user, page, size, sort);
     }
 }

@@ -12,7 +12,7 @@ public enum Error {
     NOT_FOUND_USER_ID("user id not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_KAKAO_ID("kakao user not found", HttpStatus.NOT_FOUND),
     NOT_FOUND_PROFILE("user profile not found", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXITS("user already exits", HttpStatus.CONFLICT),
+    USER_ALREADY_EXITS("kakaoId already exits", HttpStatus.CONFLICT),
     USER_ALREADY_REGISTER_SCHEDULE("user already register schedule", HttpStatus.BAD_REQUEST),
     USER_NICKNAME_ALREADY_EXITS("user nickname already exits", HttpStatus.CONFLICT),
     S3_UPLOAD_FAIL("upload fail", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -36,7 +36,8 @@ public enum Error {
     NOT_FOUND_QUESTION_BOARD_COMMENT("not found question board article comment", HttpStatus.NOT_FOUND),
     NOT_FOUND_QUESTION_BOARD_OR_COMMENT("not found question board or comment", HttpStatus.NOT_FOUND),
     NOT_FOUND_QUESTION_BOARD_COMMENT_PARENT_ID("not found question board comment parent id", HttpStatus.NOT_FOUND),
-    DIFF_POST_CHILD_ID_PARENT_ID("The parent comment and the child comment have different post numbers.", HttpStatus.BAD_REQUEST);
+    DIFF_POST_CHILD_ID_PARENT_ID("The parent comment and the child comment have different post numbers.", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_SCRAP("scrap not found", HttpStatus.NOT_FOUND);
 
 
 

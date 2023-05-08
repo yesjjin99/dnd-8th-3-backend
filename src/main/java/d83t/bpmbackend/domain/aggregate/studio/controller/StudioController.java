@@ -6,6 +6,7 @@ import d83t.bpmbackend.domain.aggregate.studio.dto.StudioRequestDto;
 import d83t.bpmbackend.domain.aggregate.studio.dto.StudioResponseDto;
 import d83t.bpmbackend.domain.aggregate.studio.service.LikeService;
 import d83t.bpmbackend.domain.aggregate.studio.service.ReviewService;
+import d83t.bpmbackend.domain.aggregate.studio.service.ScrapService;
 import d83t.bpmbackend.domain.aggregate.studio.service.StudioService;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.exception.ErrorResponse;
@@ -32,6 +33,7 @@ public class StudioController {
     private final StudioService studioService;
     private final ReviewService reviewService;
     private final LikeService likeService;
+    private final ScrapService scrapService;
 
     @Operation(summary = "스튜디오 등록 API", description = "스튜디오 필수, 추가 정보를 받아 등록")
     @ApiResponse(responseCode = "201", description = "스튜디오 등록 성공", content = @Content(schema = @Schema(implementation = StudioResponseDto.class)))
@@ -51,7 +53,7 @@ public class StudioController {
             @PathVariable Long studioId,
             @AuthenticationPrincipal User user) {
         log.info("studio id : " + studioId);
-        return studioService.findById(studioId);
+        return studioService.findById(studioId, user);
     }
 
     // TODO: 쿼리 스트링으로 필터를 받아 조회
@@ -62,7 +64,7 @@ public class StudioController {
             @AuthenticationPrincipal User user,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset) {
-        List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset);
+        List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset, user);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }
 
@@ -74,10 +76,27 @@ public class StudioController {
             @RequestParam String q,
             @AuthenticationPrincipal User user) {
         log.info("query param:" + q);
-        List<StudioResponseDto> findStudios = studioService.searchStudio(q);
+        List<StudioResponseDto> findStudios = studioService.searchStudio(q, user);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }
 
+    @Operation(summary = "스튜디오 스크랩 생성 API")
+    @PostMapping("/{studioId}/scrap")
+    public void createScrap(
+            @PathVariable Long studioId,
+            @AuthenticationPrincipal User user) {
+        scrapService.createScrap(studioId, user);
+    }
+
+    @Operation(summary = "스튜디오 스크랩 취소 API")
+    @DeleteMapping("/{studioId}/scrap")
+    public void deleteScrap(
+            @PathVariable Long studioId,
+            @AuthenticationPrincipal User user) {
+        scrapService.deleteScrap(studioId, user);
+    }
+
+    /* review */
     @Operation(summary = "리뷰 등록 API")
     @PostMapping("/{studioId}/review")
     public ReviewResponseDto createReview(
