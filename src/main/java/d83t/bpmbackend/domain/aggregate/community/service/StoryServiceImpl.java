@@ -17,6 +17,10 @@ import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -100,6 +105,17 @@ public class StoryServiceImpl implements StoryService {
         Story savedStory = storyRepository.save(story);
 
         return new StoryResponseDto(savedStory);
+    }
+
+    @Override
+    public List<StoryResponseDto> getAllStory(int page, int size, String sort, User user) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+        Page<Story> stories = storyRepository.findAll(pageable);
+
+        User findUser = userRepository.findByKakaoId(user.getKakaoId())
+                .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
+
+        return stories.stream().map(story -> new StoryResponseDto(story)).collect(Collectors.toList());
     }
 
     @Override

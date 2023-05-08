@@ -71,7 +71,7 @@ public class ReviewResponseDto {
 
     @Builder
     @Getter
-    public static class Multireviews {
+    public static class MultiReviews {
         List<ReviewResponseDto> reviews;
         Integer reviewCount;
     }

@@ -3,7 +3,6 @@ package d83t.bpmbackend.domain.aggregate.community.dto;
 import d83t.bpmbackend.domain.aggregate.community.entity.Story;
 import d83t.bpmbackend.domain.aggregate.community.entity.StoryImage;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
-import d83t.bpmbackend.domain.aggregate.studio.dto.ReviewResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,5 +46,12 @@ public class StoryResponseDto {
         private Long id;
         private String nickname;
         private String profilePath;
+    }
+
+    @Builder
+    @Getter
+    public static class MultiStories {
+        List<StoryResponseDto> stories;
+        Integer storyCount;
     }
 }
