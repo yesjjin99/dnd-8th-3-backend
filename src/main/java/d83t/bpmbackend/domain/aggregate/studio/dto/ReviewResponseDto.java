@@ -1,6 +1,5 @@
 package d83t.bpmbackend.domain.aggregate.studio.dto;
 
-import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileDto;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Review;
 import d83t.bpmbackend.domain.aggregate.studio.entity.ReviewImage;
@@ -68,5 +67,12 @@ public class ReviewResponseDto {
         private Long id;
         private String nickname;
         private String profilePath;
+    }
+
+    @Builder
+    @Getter
+    public static class Multireviews {
+        List<ReviewResponseDto> reviews;
+        Integer reviewCount;
     }
 }

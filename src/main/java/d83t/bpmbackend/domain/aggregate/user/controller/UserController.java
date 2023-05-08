@@ -82,12 +82,13 @@ public class UserController {
 
     @Operation(summary = "내가 스크랩한 스튜디오 리스트 조회 API", description = "page, size, sort 를 넘겨주시면 됩니다. 마찬가지로 sort 는 최신순(createdDate)와 같이 넘겨주세요.")
     @GetMapping("/scrap")
-    public List<StudioResponseDto> findAllScrappedStudio(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdDate") String sort,
+    public StudioResponseDto.MultiStudios findAllScrappedStudio(
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size,
+            @RequestParam(value = "sort", required = false, defaultValue = "createdDate") String sort,
             @AuthenticationPrincipal User user) {
         log.info("page : " + page + " size : " + size + " sort : " + sort);
-        return scrapService.findAllScrappedStudio(user, page, size, sort);
+        List<StudioResponseDto> scrappedStudios = scrapService.findAllScrappedStudio(user, page, size, sort);
+        return StudioResponseDto.MultiStudios.builder().studios(scrappedStudios).studiosCount(scrappedStudios.size()).build();
     }
 }
