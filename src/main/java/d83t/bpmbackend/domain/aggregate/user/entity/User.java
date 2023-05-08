@@ -2,6 +2,7 @@ package d83t.bpmbackend.domain.aggregate.user.entity;
 
 import d83t.bpmbackend.base.entity.DateEntity;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardFavorite;
+import d83t.bpmbackend.domain.aggregate.community.entity.StoryLike;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,9 @@ public class User extends DateEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionBoardFavorite> questionBoardFavorite;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoryLike> storyLikes;
 
     public void updateProfile(Profile profile){
         this.profile = profile;
