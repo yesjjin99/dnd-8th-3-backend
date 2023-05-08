@@ -19,6 +19,7 @@ public class StoryResponseDto {
     private String content;
     private List<String> filesPath;
     private AuthorDto author;
+    private int likeCount;
 
     private boolean isLiked;
     private ZonedDateTime createdAt;
@@ -28,6 +29,7 @@ public class StoryResponseDto {
     public StoryResponseDto(Story story, boolean isLiked) {
         this.id = story.getId();
         this.content = story.getContent();
+        this.likeCount = story.getLikeCount();
         this.isLiked = isLiked;
         this.createdAt = story.getCreatedDate();
         this.updatedAt = story.getModifiedDate();
