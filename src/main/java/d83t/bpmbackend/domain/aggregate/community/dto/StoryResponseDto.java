@@ -3,7 +3,6 @@ package d83t.bpmbackend.domain.aggregate.community.dto;
 import d83t.bpmbackend.domain.aggregate.community.entity.Story;
 import d83t.bpmbackend.domain.aggregate.community.entity.StoryImage;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
-import d83t.bpmbackend.domain.aggregate.studio.dto.ReviewResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,13 +20,15 @@ public class StoryResponseDto {
     private List<String> filesPath;
     private AuthorDto author;
 
+    private boolean isLiked;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
     @Builder
-    public StoryResponseDto(Story story) {
+    public StoryResponseDto(Story story, boolean isLiked) {
         this.id = story.getId();
         this.content = story.getContent();
+        this.isLiked = isLiked;
         this.createdAt = story.getCreatedDate();
         this.updatedAt = story.getModifiedDate();
 

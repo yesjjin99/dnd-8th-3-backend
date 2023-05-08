@@ -4,9 +4,9 @@ import d83t.bpmbackend.domain.aggregate.community.dto.StoryRequestDto;
 import d83t.bpmbackend.domain.aggregate.community.dto.StoryResponseDto;
 import d83t.bpmbackend.domain.aggregate.community.entity.Story;
 import d83t.bpmbackend.domain.aggregate.community.entity.StoryImage;
+import d83t.bpmbackend.domain.aggregate.community.repository.StoryLikeRepository;
 import d83t.bpmbackend.domain.aggregate.community.repository.StoryRepository;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
-import d83t.bpmbackend.domain.aggregate.profile.repository.ProfileRepository;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.domain.aggregate.user.repository.UserRepository;
 import d83t.bpmbackend.exception.CustomException;
@@ -33,8 +33,8 @@ public class StoryServiceImpl implements StoryService {
 
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
-    private final ProfileRepository profileRepository;
     private final S3UploaderService uploaderService;
+    private final StoryLikeRepository storyLikeRepository;
 
     @Value("${bpm.s3.bucket.story.path}")
     private String storyPath;
@@ -99,14 +99,16 @@ public class StoryServiceImpl implements StoryService {
 
         Story savedStory = storyRepository.save(story);
 
-        return new StoryResponseDto(savedStory);
+        return new StoryResponseDto(savedStory, false);
     }
 
     @Override
     public StoryResponseDto getStory(Long storyId, User user) {
         Story story = storyRepository.findById(storyId)
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_STORY));
-        return new StoryResponseDto(story);
+
+        boolean isLiked = checkStoryLiked(storyId, user);
+        return new StoryResponseDto(story, isLiked);
     }
 
     @Override
@@ -158,7 +160,8 @@ public class StoryServiceImpl implements StoryService {
         story.updateStoryImage(storyImages);
 
         Story savedStory = storyRepository.save(story);
-        return new StoryResponseDto(savedStory);
+        boolean isLiked = checkStoryLiked(storyId, findUser);
+        return new StoryResponseDto(savedStory, isLiked);
     }
 
     @Override
@@ -174,5 +177,13 @@ public class StoryServiceImpl implements StoryService {
         } else {
             throw new CustomException(Error.NOT_MATCH_USER);
         }
+    }
+
+    private boolean checkStoryLiked(Long storyId, User user) {
+        boolean isLiked = false;
+        if (storyLikeRepository.existsByStoryIdAndUserId(storyId, user.getId())) {
+            isLiked = true;
+        }
+        return isLiked;
     }
 }
