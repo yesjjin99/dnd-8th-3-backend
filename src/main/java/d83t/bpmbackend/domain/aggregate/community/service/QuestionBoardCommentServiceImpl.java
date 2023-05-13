@@ -3,6 +3,7 @@ package d83t.bpmbackend.domain.aggregate.community.service;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentDto;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentReportDto;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentResponse;
+import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentUpdateDto;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardComment;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardCommentReport;
@@ -94,6 +95,29 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
             else result.add(cdto);
         });
         return result;
+    }
+
+    @Override
+    public QuestionBoardCommentResponse updateComment(User user, Long questionBoardArticleId, Long commentId, QuestionBoardCommentUpdateDto questionBoardCommentUpdateDto) {
+        QuestionBoardComment questionBoardComment = questionBoardCommentRepository.findByQuestionBoardIdAndId(questionBoardArticleId, commentId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_BOARD_OR_COMMENT);
+        });
+
+        User findUser = userRepository.findById(user.getId()).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        Profile profile = findUser.getProfile();
+        //작성자인지 확인
+        if (!questionBoardComment.getAuthor().getId().equals(profile.getId())) {
+            throw new CustomException(Error.NOT_AUTHOR_OF_POST);
+        }
+
+        questionBoardComment.updateBody(questionBoardCommentUpdateDto.getBody());
+
+        questionBoardCommentRepository.save(questionBoardComment);
+
+        return convertComment(questionBoardComment);
     }
 
     @Override

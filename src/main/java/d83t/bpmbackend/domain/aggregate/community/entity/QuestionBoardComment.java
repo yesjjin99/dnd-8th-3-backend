@@ -51,6 +51,10 @@ public class QuestionBoardComment extends DateEntity {
         this.parent = parent;
     }
 
+    //글 내용 수정
+    public void updateBody(String updateBody){
+        this.body = updateBody;
+      
     // 신고수 추가
     public void plusReport(){
         this.reportCount += 1;
