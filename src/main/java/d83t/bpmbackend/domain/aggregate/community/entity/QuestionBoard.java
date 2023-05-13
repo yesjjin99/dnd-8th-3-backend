@@ -24,7 +24,7 @@ public class QuestionBoard extends DateEntity {
     private Long id;
 
     @Column
-    private String title;
+    private String slug;
 
     @Column
     private String content;
@@ -50,7 +50,7 @@ public class QuestionBoard extends DateEntity {
     }
 
     public void changeTitle(String title){
-        this.title = title;
+        this.slug = title;
     }
 
     public void changeContent(String content){

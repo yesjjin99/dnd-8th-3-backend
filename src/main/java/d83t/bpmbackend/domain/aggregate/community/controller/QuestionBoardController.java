@@ -47,6 +47,7 @@ public class QuestionBoardController {
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset,
             @ModelAttribute QuestionBoardParam questionBoardParam) {
+        log.info("query: {}", questionBoardParam.toString());
         List<QuestionBoardResponse> questionArticles = questionBoardService.getQuestionBoardArticles(user, limit, offset, questionBoardParam);
         return QuestionBoardResponse.MultiQuestionBoard.builder().questionBoardResponseList(questionArticles).questionBoardCount(questionArticles.size()).build();
     }
