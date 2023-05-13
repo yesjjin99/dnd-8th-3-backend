@@ -1,10 +1,13 @@
 package d83t.bpmbackend.domain.aggregate.community.service;
 
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentDto;
+import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentReportDto;
 import d83t.bpmbackend.domain.aggregate.community.dto.QuestionBoardCommentResponse;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoard;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardComment;
+import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardCommentReport;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardCommentQueryDSLRepository;
+import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardCommentReportRepository;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardCommentRepository;
 import d83t.bpmbackend.domain.aggregate.community.repository.QuestionBoardRepository;
 import d83t.bpmbackend.domain.aggregate.profile.dto.ProfileResponse;
@@ -32,6 +35,7 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
     private final QuestionBoardRepository questionBoardRepository;
     private final QuestionBoardCommentRepository questionBoardCommentRepository;
     private final QuestionBoardCommentQueryDSLRepository questionBoardCommentQueryDSLRepository;
+    private final QuestionBoardCommentReportRepository questionBoardCommentReportRepository;
     private final UserRepository userRepository;
     private final ProfileService profileService;
 
@@ -110,6 +114,39 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
         questionBoardCommentRepository.delete(questionBoardComment);
     }
 
+    @Override
+    public void reportComment(User user, Long questionBoardArticleId, Long commentId, QuestionBoardCommentReportDto reportDto) {
+        QuestionBoardComment questionBoardComment = questionBoardCommentRepository.findByQuestionBoardIdAndId(questionBoardArticleId, commentId).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_QUESTION_BOARD_OR_COMMENT);
+        });
+
+        User findUser = userRepository.findById(user.getId()).orElseThrow(() -> {
+            throw new CustomException(Error.NOT_FOUND_USER_ID);
+        });
+
+        //신고 3회 삭제.
+        if(questionBoardComment.getReportCount() >= 2){
+            questionBoardCommentRepository.delete(questionBoardComment);
+        }else{
+            questionBoardComment.plusReport();
+            questionBoardCommentRepository.save(questionBoardComment);
+        }
+
+        //로그성 테이블에 남기기
+        QuestionBoardCommentReport questionBoardCommentReport = QuestionBoardCommentReport.builder()
+                .commentAuthor(questionBoardComment.getAuthor().getNickName())
+                .commentBody(questionBoardComment.getBody())
+                .commentId(questionBoardComment.getId())
+                .commentCreatedAt(questionBoardComment.getCreatedDate())
+                .commentUpdatedAt(questionBoardComment.getModifiedDate())
+                .reportReason(reportDto.getReason())
+                .reporter(findUser.getProfile().getId())
+                .build();
+
+        questionBoardCommentReportRepository.save(questionBoardCommentReport);
+
+    }
+
     private QuestionBoardCommentResponse convertComment(QuestionBoardComment questionBoardComment) {
 
         ProfileResponse profile = profileService.getProfile(questionBoardComment.getAuthor().getNickName());
@@ -120,6 +157,7 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
                             .nickname(profile.getNickname())
                             .profilePath(profile.getImage()).build())
                     .body(questionBoardComment.getBody())
+                    .reportCount(questionBoardComment.getReportCount())
                     .parentId(questionBoardComment.getParent().getId())
                     .createdAt(questionBoardComment.getCreatedDate())
                     .updatedAt(questionBoardComment.getModifiedDate())
@@ -131,6 +169,7 @@ public class QuestionBoardCommentServiceImpl implements QuestionBoardCommentServ
                             .nickname(profile.getNickname())
                             .profilePath(profile.getImage()).build())
                     .body(questionBoardComment.getBody())
+                    .reportCount(questionBoardComment.getReportCount())
                     .createdAt(questionBoardComment.getCreatedDate())
                     .updatedAt(questionBoardComment.getModifiedDate())
                     .build();

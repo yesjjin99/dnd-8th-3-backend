@@ -22,6 +22,8 @@ public class QuestionBoardCommentResponse {
 
     private List<QuestionBoardCommentResponse> children;
 
+    private int reportCount;
+
     @Builder
     @Getter
     public static class Author {
