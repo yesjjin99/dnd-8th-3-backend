@@ -47,6 +47,7 @@ public class QuestionBoardController {
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset,
             @ModelAttribute QuestionBoardParam questionBoardParam) {
+        log.info("query: {}", questionBoardParam.toString());
         List<QuestionBoardResponse> questionArticles = questionBoardService.getQuestionBoardArticles(user, limit, offset, questionBoardParam);
         return QuestionBoardResponse.MultiQuestionBoard.builder().questionBoardResponseList(questionArticles).questionBoardCount(questionArticles.size()).build();
     }
@@ -161,5 +162,17 @@ public class QuestionBoardController {
         questionBoardCommentService.deleteComment(user, questionBoardArticleId, commentId);
     }
 
+    @Operation(summary = "질문하기 게시판 댓글 신고하기 API", description = "사용자가 질문하기 게시판의 댓글을 신고합니다. token을 넘겨야합니다.")
+    @ApiResponse(responseCode = "200", description = "질문하기 게시판 댓글 신고 성공")
+    @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @PostMapping("/{questionBoardArticleId}/comments/{commentId}")
+    public void questionBoardArticleReportComments(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long questionBoardArticleId,
+            @PathVariable Long commentId,
+            @RequestBody QuestionBoardCommentReportDto reportDto) {
+        log.info("question board report comments input : questionBoardArticleId {}, commentId {}, body : {}", questionBoardArticleId, commentId, reportDto.getReason());
+        questionBoardCommentService.reportComment(user, questionBoardArticleId, commentId, reportDto);
+    }
 
 }

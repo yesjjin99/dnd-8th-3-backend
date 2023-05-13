@@ -70,6 +70,9 @@ public class Studio extends DateEntity {
     @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Scrap> scraps = new ArrayList<>();
+
     @Builder
     public Studio(String name, String address, Double latitude, Double longitude, String firstTag, String secondTag, String phone, String sns, String openHours, String price, List<StudioImage> images, String content, Double rating, int reviewCount, int scrapCount) {
         this.name = name;
@@ -145,7 +148,6 @@ public class Studio extends DateEntity {
             this.rating = avg;
         }
         this.reviewCount += 1;
-        review.setStudio(this);
         return review;
     }
 
@@ -156,6 +158,15 @@ public class Studio extends DateEntity {
             this.rating = avg;
         }
         this.reviewCount -= 1;
-        review.setStudio(null);
+    }
+
+    public void addScrap(Scrap scrap) {
+        this.scraps.add(scrap);
+        this.scrapCount += 1;
+    }
+
+    public void removeScrap(Scrap scrap) {
+        this.scraps.remove(scrap);
+        this.scrapCount -= 1;
     }
 }

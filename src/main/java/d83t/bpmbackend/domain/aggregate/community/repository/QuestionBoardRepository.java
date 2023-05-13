@@ -14,4 +14,7 @@ public interface QuestionBoardRepository extends JpaRepository<QuestionBoard, Lo
 
     @Query("SELECT a FROM QuestionBoard a ORDER BY a.createdDate DESC")
     List<QuestionBoard> findByAll(Pageable pageable);
+
+    @Query("SELECT a FROM QuestionBoard a WHERE a.slug LIKE %?1%")
+    List<QuestionBoard> searchQuestionBoardNames(String query, Pageable pageable);
 }
