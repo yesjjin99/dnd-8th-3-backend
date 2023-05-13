@@ -115,7 +115,7 @@ public class StoryServiceImpl implements StoryService {
         User findUser = userRepository.findByKakaoId(user.getKakaoId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
 
-        return stories.stream().map(story -> new StoryResponseDto(story)).collect(Collectors.toList());
+        return stories.stream().map(story -> new StoryResponseDto(story, checkStoryLiked(story.getId(), findUser))).collect(Collectors.toList());
     }
 
     @Override
