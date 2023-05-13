@@ -41,6 +41,18 @@ public class StoryController {
         return storyService.createStory(requestDto, files, user);
     }
 
+    @Operation(summary = "커뮤니티 글 리스트 조회 API", description = "page, size, sort 를 넘겨주시면 됩니다. sort 는 최신순(createdDate)과 같이 넘겨주세요.")
+    @GetMapping()
+    public StoryResponseDto.MultiStories getAllStory(
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size,
+            @RequestParam(value = "sort", required = false, defaultValue = "createdDate") String sort,
+            @AuthenticationPrincipal User user) {
+        log.info("page : " + page + " size : " + size + " sort : " + sort);
+        List<StoryResponseDto> stories = storyService.getAllStory(page, size, sort, user);
+        return StoryResponseDto.MultiStories.builder().stories(stories).storyCount(stories.size()).build();
+    }
+
     @Operation(summary = "커뮤니티 글 상세조회 API", description = "커뮤니티 스토리 글을 상세 조회합니")
     @ApiResponse(responseCode = "200", description = "스토리 상세조회 성공", content = @Content(schema = @Schema(implementation = StoryResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "스토리를 찾을 수 없습니다", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

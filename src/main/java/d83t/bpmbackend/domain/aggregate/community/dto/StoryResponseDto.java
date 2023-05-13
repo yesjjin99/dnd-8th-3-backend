@@ -51,4 +51,11 @@ public class StoryResponseDto {
         private String nickname;
         private String profilePath;
     }
+
+    @Builder
+    @Getter
+    public static class MultiStories {
+        List<StoryResponseDto> stories;
+        Integer storyCount;
+    }
 }

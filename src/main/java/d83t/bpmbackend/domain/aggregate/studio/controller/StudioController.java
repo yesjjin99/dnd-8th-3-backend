@@ -110,14 +110,15 @@ public class StudioController {
 
     @Operation(summary = "리뷰 리스트 조회 API", description = "sort 는 최신순(createdDate) / 좋아요순(likeCount) 와 같이 넘겨주시면 됩니다.")
     @GetMapping("/{studioId}/review")
-    public List<ReviewResponseDto> findAllReviews(
+    public ReviewResponseDto.MultiReviews findAllReviews(
             @PathVariable Long studioId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdDate") String sort,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size,
+            @RequestParam(value = "sort", required = false, defaultValue = "createdDate") String sort,
             @AuthenticationPrincipal User user) {
         log.info("page : " + page + " / size : " + size + " / sort : " + sort);
-        return reviewService.findAll(user, studioId, page, size, sort);
+        List<ReviewResponseDto> reviews = reviewService.findAll(user, studioId, page, size, sort);
+        return ReviewResponseDto.MultiReviews.builder().reviews(reviews).reviewCount(reviews.size()).build();
     }
 
     @Operation(summary = "리뷰 상세 조회 API")
