@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +102,7 @@ public class StudioController {
     public ReviewResponseDto createReview(
             @PathVariable Long studioId,
             @AuthenticationPrincipal User user,
-            @RequestPart List<MultipartFile> files,
+            @Nullable @RequestPart List<MultipartFile> files,
             @ModelAttribute ReviewRequestDto requestDto) {
         log.info("studio id : " + studioId);
         return reviewService.createReview(studioId, user, files, requestDto);
@@ -133,7 +134,7 @@ public class StudioController {
     public ReviewResponseDto updateReview(
             @PathVariable Long studioId,
             @PathVariable Long reviewId,
-            @RequestPart List<MultipartFile> files,
+            @Nullable @RequestPart List<MultipartFile> files,
             @ModelAttribute ReviewRequestDto requestDto,
             @AuthenticationPrincipal User user) {
         log.info("review update : {}", requestDto.toString());
