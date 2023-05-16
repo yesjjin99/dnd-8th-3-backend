@@ -6,6 +6,7 @@ import d83t.bpmbackend.domain.aggregate.studio.dto.StudioRequestDto;
 import d83t.bpmbackend.domain.aggregate.studio.dto.StudioResponseDto;
 import d83t.bpmbackend.domain.aggregate.studio.service.LikeService;
 import d83t.bpmbackend.domain.aggregate.studio.service.ReviewService;
+import d83t.bpmbackend.domain.aggregate.studio.service.ScrapService;
 import d83t.bpmbackend.domain.aggregate.studio.service.StudioService;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.exception.ErrorResponse;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class StudioController {
     private final StudioService studioService;
     private final ReviewService reviewService;
     private final LikeService likeService;
+    private final ScrapService scrapService;
 
     @Operation(summary = "스튜디오 등록 API", description = "스튜디오 필수, 추가 정보를 받아 등록")
     @ApiResponse(responseCode = "201", description = "스튜디오 등록 성공", content = @Content(schema = @Schema(implementation = StudioResponseDto.class)))
@@ -50,7 +53,7 @@ public class StudioController {
             @PathVariable Long studioId,
             @AuthenticationPrincipal User user) {
         log.info("studio id : " + studioId);
-        return studioService.findById(studioId);
+        return studioService.findById(studioId, user);
     }
 
     // TODO: 쿼리 스트링으로 필터를 받아 조회
@@ -61,7 +64,7 @@ public class StudioController {
             @AuthenticationPrincipal User user,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "offset", required = false) Integer offset) {
-        List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset);
+        List<StudioResponseDto> findStudios = studioService.findStudioAll(limit, offset, user);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }
 
@@ -73,16 +76,33 @@ public class StudioController {
             @RequestParam String q,
             @AuthenticationPrincipal User user) {
         log.info("query param:" + q);
-        List<StudioResponseDto> findStudios = studioService.searchStudio(q);
+        List<StudioResponseDto> findStudios = studioService.searchStudio(q, user);
         return StudioResponseDto.MultiStudios.builder().studios(findStudios).studiosCount(findStudios.size()).build();
     }
 
+    @Operation(summary = "스튜디오 스크랩 생성 API")
+    @PostMapping("/{studioId}/scrap")
+    public void createScrap(
+            @PathVariable Long studioId,
+            @AuthenticationPrincipal User user) {
+        scrapService.createScrap(studioId, user);
+    }
+
+    @Operation(summary = "스튜디오 스크랩 취소 API")
+    @DeleteMapping("/{studioId}/scrap")
+    public void deleteScrap(
+            @PathVariable Long studioId,
+            @AuthenticationPrincipal User user) {
+        scrapService.deleteScrap(studioId, user);
+    }
+
+    /* review */
     @Operation(summary = "리뷰 등록 API")
     @PostMapping("/{studioId}/review")
     public ReviewResponseDto createReview(
             @PathVariable Long studioId,
             @AuthenticationPrincipal User user,
-            @RequestPart List<MultipartFile> files,
+            @Nullable @RequestPart List<MultipartFile> files,
             @ModelAttribute ReviewRequestDto requestDto) {
         log.info("studio id : " + studioId);
         return reviewService.createReview(studioId, user, files, requestDto);
@@ -90,14 +110,15 @@ public class StudioController {
 
     @Operation(summary = "리뷰 리스트 조회 API", description = "sort 는 최신순(createdDate) / 좋아요순(likeCount) 와 같이 넘겨주시면 됩니다.")
     @GetMapping("/{studioId}/review")
-    public List<ReviewResponseDto> findAllReviews(
+    public ReviewResponseDto.MultiReviews findAllReviews(
             @PathVariable Long studioId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdDate") String sort,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size,
+            @RequestParam(value = "sort", required = false, defaultValue = "createdDate") String sort,
             @AuthenticationPrincipal User user) {
         log.info("page : " + page + " / size : " + size + " / sort : " + sort);
-        return reviewService.findAll(user, studioId, page, size, sort);
+        List<ReviewResponseDto> reviews = reviewService.findAll(user, studioId, page, size, sort);
+        return ReviewResponseDto.MultiReviews.builder().reviews(reviews).reviewCount(reviews.size()).build();
     }
 
     @Operation(summary = "리뷰 상세 조회 API")
@@ -114,7 +135,7 @@ public class StudioController {
     public ReviewResponseDto updateReview(
             @PathVariable Long studioId,
             @PathVariable Long reviewId,
-            @RequestPart List<MultipartFile> files,
+            @Nullable @RequestPart List<MultipartFile> files,
             @ModelAttribute ReviewRequestDto requestDto,
             @AuthenticationPrincipal User user) {
         log.info("review update : {}", requestDto.toString());

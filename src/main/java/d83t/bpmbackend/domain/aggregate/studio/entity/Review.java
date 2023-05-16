@@ -91,12 +91,10 @@ public class Review extends DateEntity {
     public void addLike(Like like, Profile user) {
         this.likes.add(like);
         this.likeCount += 1;
-        like.setReview(this);
     }
 
     public void removeLike(Like like) {
         this.likes.remove(like);
         this.likeCount -= 1;
-        like.setReview(null);
     }
 }

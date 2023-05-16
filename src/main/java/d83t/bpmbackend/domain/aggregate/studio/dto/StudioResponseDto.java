@@ -32,11 +32,13 @@ public class StudioResponseDto {
     private Double rating;
     private int reviewCount;
     private int scrapCount;
+
+    private boolean isScrapped;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
     @Builder
-    public StudioResponseDto(Studio studio) {
+    public StudioResponseDto(Studio studio, boolean isScrapped) {
         this.id = studio.getId();
         this.name = studio.getName();
         this.address = studio.getAddress();
@@ -60,6 +62,7 @@ public class StudioResponseDto {
         this.rating = studio.getRating();
         this.reviewCount = studio.getReviewCount();
         this.scrapCount = studio.getScrapCount();
+        this.isScrapped = isScrapped;
         this.createdAt = studio.getCreatedDate();
         this.updatedAt = studio.getModifiedDate();
     }

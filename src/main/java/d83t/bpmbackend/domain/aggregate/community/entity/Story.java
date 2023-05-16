@@ -30,6 +30,12 @@ public class Story extends DateEntity {
     @JoinColumn(nullable = false)
     private Profile author;
 
+    @Column(columnDefinition = "int default 0")
+    private int likeCount;
+
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoryLike> likes = new ArrayList<>();
+
     public void addStoryImage(StoryImage storyImage) {
         if (this.images == null) {
             this.images = new ArrayList<>();
@@ -44,5 +50,15 @@ public class Story extends DateEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void addStoryLike(StoryLike like) {
+        this.likes.add(like);
+        this.likeCount += 1;
+    }
+
+    public void removeStoryLike(StoryLike like) {
+        this.likes.remove(like);
+        this.likeCount -= 1;
     }
 }

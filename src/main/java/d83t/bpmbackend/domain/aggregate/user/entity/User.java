@@ -2,7 +2,9 @@ package d83t.bpmbackend.domain.aggregate.user.entity;
 
 import d83t.bpmbackend.base.entity.DateEntity;
 import d83t.bpmbackend.domain.aggregate.community.entity.QuestionBoardFavorite;
+import d83t.bpmbackend.domain.aggregate.community.entity.StoryLike;
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
+import d83t.bpmbackend.domain.aggregate.studio.entity.Scrap;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,6 +42,12 @@ public class User extends DateEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionBoardFavorite> questionBoardFavorite;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Scrap> scraps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoryLike> storyLikes = new ArrayList<>();
 
     public void updateProfile(Profile profile){
         this.profile = profile;

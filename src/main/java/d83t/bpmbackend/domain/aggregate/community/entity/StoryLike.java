@@ -1,7 +1,6 @@
-package d83t.bpmbackend.domain.aggregate.studio.entity;
+package d83t.bpmbackend.domain.aggregate.community.entity;
 
 import d83t.bpmbackend.base.entity.DateEntity;
-import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
 import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,24 +11,24 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "likes")
-public class Like extends DateEntity {
+@Table(name = "StoryLike")
+public class StoryLike extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id")
-    private Review review;
+    @JoinColumn(name = "story_id")
+    private Story story;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private Profile user;
+    private User user;
 
     @Builder
-    public Like(Review review, Profile user) {
-        this.review = review;
+    public StoryLike(Story story, User user) {
+        this.story = story;
         this.user = user;
     }
 }

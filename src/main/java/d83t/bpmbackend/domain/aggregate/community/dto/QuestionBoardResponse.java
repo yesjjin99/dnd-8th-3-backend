@@ -15,7 +15,7 @@ public class QuestionBoardResponse {
     private Long id;
 
     @Schema(description = "게시글의 제목", defaultValue = "제목입니다.")
-    private String title;
+    private String slug;
 
     @Schema(description = "게시글의 본문", defaultValue = "본문입니다.")
     private String content;
@@ -36,6 +36,9 @@ public class QuestionBoardResponse {
 
     @Schema(description = "게시글 좋아요 갯수")
     private Long favoritesCount;
+
+    @Schema(description = "댓글 수")
+    private int commentsCount;
 
     @Builder
     @Getter
