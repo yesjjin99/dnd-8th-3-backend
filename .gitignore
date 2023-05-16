@@ -43,5 +43,4 @@ out/
 images/
 
 ### local properties ###
-application-local.properties
-application-prod.properties
+*.properties
