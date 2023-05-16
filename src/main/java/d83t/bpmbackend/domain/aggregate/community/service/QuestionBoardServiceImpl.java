@@ -278,6 +278,8 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                     .map(QuestionBoardImage::getStoragePathName)
                     .collect(Collectors.toList());
         }
+        int size = questionBoard.getComments() == null ? 0 : questionBoard.getComments().size() ;
+
         return QuestionBoardResponse.builder()
                 .id(questionBoard.getId())
                 .author(QuestionBoardResponse.Author.builder()
@@ -289,7 +291,7 @@ public class QuestionBoardServiceImpl implements QuestionBoardService {
                 .slug(questionBoard.getSlug())
                 .favorited(getFavoritesStatus(user, questionBoard))
                 .favoritesCount(getFavoritesCount(questionBoard.getId()))
-                .commentsCount(questionBoard.getComments().size())
+                .commentsCount(size)
                 .filesPath(imagePaths)
                 .build();
     }
