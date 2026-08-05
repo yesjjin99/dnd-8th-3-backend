@@ -14,6 +14,8 @@ import d83t.bpmbackend.exception.Error;
 import d83t.bpmbackend.s3.S3UploaderService;
 import d83t.bpmbackend.utils.FileUtils;
 import jakarta.annotation.PostConstruct;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,7 +117,14 @@ public class StoryServiceImpl implements StoryService {
         User findUser = userRepository.findByKakaoId(user.getKakaoId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
 
-        return stories.stream().map(story -> new StoryResponseDto(story, checkStoryLiked(story.getId(), findUser))).collect(Collectors.toList());
+        List<Long> storyIds = stories.stream().map(Story::getId).toList();
+
+        // 사용자가 좋아요를 누른 Story ID 목록
+        Set<Long> likedStoryIds = new HashSet<>(
+            storyLikeRepository.findLikedStoryIdsByUserIdAndStoryIds(findUser.getId(), storyIds)
+        );
+
+        return stories.stream().map(story -> new StoryResponseDto(story, likedStoryIds.contains(story.getId()))).toList();
     }
 
     @Override
