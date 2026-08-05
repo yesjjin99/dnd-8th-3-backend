@@ -49,11 +49,11 @@
 | **Section**       | Tech                         |
 | ---------------- |------------------------------|
 | **언어**         | Java                       |
-| **프레임워크**   | Spring Boot, Spring Data JPA, Spring Security |
+| **프레임워크**   | Spring Boot, Spring Security, Spring Data JPA, QueryDSL |
 | **데이터베이스** | PostgreSQL, RDS, S3               |
 | **웹 서버**      | EC2, Nginx |
 | **인프라**       | Docker, Github Actions      |
-| **협업 툴**       | Swagger, Jira, Notion, Slack      |
+| **협업 툴**       | Swagger, Jira, Notion, Slack, Figma      |
 
 
 <br>
