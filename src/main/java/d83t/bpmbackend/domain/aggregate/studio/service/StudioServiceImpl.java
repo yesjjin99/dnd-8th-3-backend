@@ -9,6 +9,8 @@ import d83t.bpmbackend.domain.aggregate.user.entity.User;
 import d83t.bpmbackend.domain.aggregate.user.repository.UserRepository;
 import d83t.bpmbackend.exception.CustomException;
 import d83t.bpmbackend.exception.Error;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -57,11 +59,14 @@ public class StudioServiceImpl implements StudioService {
         User findUser = userRepository.findByKakaoId(user.getKakaoId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
         List<Studio> studios = studioRepository.findByAll(pageable);
+        List<Long> studioIds = studios.stream().map(Studio::getId).toList();
 
-        return studios.stream().map(studio -> {
-            boolean isScrapped = checkStudioScrapped(studio.getId(), findUser);
-            return new StudioResponseDto(studio, isScrapped);
-        }).collect(Collectors.toList());
+        // 사용자가 스크랩한 Studio ID 목록
+        Set<Long> scrappedStudioIds = new HashSet<>(
+            scrapRepository.findScrappedStudioIdsByUserIdAndStudioIds(findUser.getId(), studioIds)
+        );
+
+        return studios.stream().map(studio -> new StudioResponseDto(studio, scrappedStudioIds.contains(studio.getId()))).toList();
     }
 
     @Override
@@ -73,10 +78,14 @@ public class StudioServiceImpl implements StudioService {
         User findUser = userRepository.findByKakaoId(user.getKakaoId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
 
-        return studios.stream().map(studio -> {
-            boolean isScrapped = checkStudioScrapped(studio.getId(), findUser);
-            return new StudioResponseDto(studio, isScrapped);
-        }).collect(Collectors.toList());
+        List<Long> studioIds = studios.stream().map(Studio::getId).toList();
+
+        // 사용자가 스크랩한 Studio ID 목록
+        Set<Long> scrappedStudioIds = new HashSet<>(
+            scrapRepository.findScrappedStudioIdsByUserIdAndStudioIds(findUser.getId(), studioIds)
+        );
+
+        return studios.stream().map(studio -> new StudioResponseDto(studio, scrappedStudioIds.contains(studio.getId()))).toList();
     }
 
     private boolean checkStudioScrapped(Long studioId, User user) {

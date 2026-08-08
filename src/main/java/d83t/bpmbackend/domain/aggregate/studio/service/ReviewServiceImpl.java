@@ -125,6 +125,8 @@ public class ReviewServiceImpl implements ReviewService {
         Profile profile = findUser.getProfile();
 
         List<Long> reviewIds = reviews.map(Review::getId).getContent();
+
+        // 사용자가 좋아요를 누른 Review ID 목록
         Set<Long> likedReviewIds = new HashSet<>(
             likeRepository.findLikedReviewIdsByUserIdAndReviewIds(profile.getId(), reviewIds)
         );
