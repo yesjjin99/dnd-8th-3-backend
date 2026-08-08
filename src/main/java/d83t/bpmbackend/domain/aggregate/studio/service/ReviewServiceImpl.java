@@ -1,7 +1,6 @@
 package d83t.bpmbackend.domain.aggregate.studio.service;
 
 import d83t.bpmbackend.domain.aggregate.profile.entity.Profile;
-import d83t.bpmbackend.domain.aggregate.profile.repository.ProfileRepository;
 import d83t.bpmbackend.domain.aggregate.studio.dto.ReviewRequestDto;
 import d83t.bpmbackend.domain.aggregate.studio.dto.ReviewResponseDto;
 import d83t.bpmbackend.domain.aggregate.studio.entity.Review;
@@ -17,6 +16,8 @@ import d83t.bpmbackend.exception.Error;
 import d83t.bpmbackend.s3.S3UploaderService;
 import d83t.bpmbackend.utils.FileUtils;
 import jakarta.annotation.PostConstruct;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -124,10 +124,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
         Profile profile = findUser.getProfile();
 
-        return reviews.stream().map(review -> {
-                    boolean isLiked = checkReviewLiked(review.getId(), profile.getId());
-                    return new ReviewResponseDto(review, isLiked);
-                }).collect(Collectors.toList());
+        List<Long> reviewIds = reviews.map(Review::getId).getContent();
+        Set<Long> likedReviewIds = new HashSet<>(
+            likeRepository.findLikedReviewIdsByUserIdAndReviewIds(profile.getId(), reviewIds)
+        );
+
+        return reviews.map(review -> new ReviewResponseDto(review, likedReviewIds.contains(review.getId()))).getContent();
     }
 
     @Override

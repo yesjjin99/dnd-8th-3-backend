@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -117,14 +116,14 @@ public class StoryServiceImpl implements StoryService {
         User findUser = userRepository.findByKakaoId(user.getKakaoId())
                 .orElseThrow(() -> new CustomException(Error.NOT_FOUND_USER_ID));
 
-        List<Long> storyIds = stories.stream().map(Story::getId).toList();
+        List<Long> storyIds = stories.map(Story::getId).getContent();
 
         // 사용자가 좋아요를 누른 Story ID 목록
         Set<Long> likedStoryIds = new HashSet<>(
             storyLikeRepository.findLikedStoryIdsByUserIdAndStoryIds(findUser.getId(), storyIds)
         );
 
-        return stories.stream().map(story -> new StoryResponseDto(story, likedStoryIds.contains(story.getId()))).toList();
+        return stories.map(story -> new StoryResponseDto(story, likedStoryIds.contains(story.getId()))).getContent();
     }
 
     @Override
